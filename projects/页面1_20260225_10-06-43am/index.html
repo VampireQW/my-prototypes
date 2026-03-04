@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业管理 - 教学管理系统</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Config for Custom Colors -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#004fff', // Main color from spec
+                        success: '#10b981', // Accent color
+                        'text-main': '#333333',
+                        'text-secondary': '#666666',
+                        'border-light': '#e5e7eb',
+                        'bg-hover': '#f9fafb'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Styles to match the specific Ant Design look */
+        body {
+            background-color: #f0f2f5;
+            color: #333;
+            font-size: 14px;
+        }
+
+        /* Ant Design Style Select & Input Overrides */
+        .ant-input, .ant-select-selector {
+            border: 1px solid #d9d9d9 !important;
+            border-radius: 4px !important;
+            transition: all 0.3s;
+        }
+        
+        .ant-input:hover, .ant-select-selector:hover {
+            border-color: #40a9ff !important;
+        }
+
+        .ant-input:focus, .ant-select-focused .ant-select-selector {
+            border-color: #004fff !important;
+            box-shadow: 0 0 0 2px rgba(0, 79, 255, 0.1) !important;
+            outline: none;
+        }
+
+        /* Table Styling */
+        .custom-table {
+            width: 100%;
+            border-collapse: separate; 
+            border-spacing: 0;
+        }
+
+        .custom-table th {
+            background-color: #fafafa;
+            color: #666;
+            font-weight: 500;
+            text-align: left;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .custom-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.3s;
+        }
+
+        .custom-table tr:hover td {
+            background-color: #fafafa;
+        }
+
+        /* Tag Styling (Orange pill in screenshot) */
+        .tag-orange {
+            background-color: #fff7e6;
+            border: 1px solid #ffd591;
+            color: #fa8c16;
+            font-size: 12px;
+            padding: 0 6px;
+            border-radius: 4px;
+            margin-left: 8px;
+            display: inline-block;
+        }
+
+        /* Status Dot */
+        .status-dot {
+            height: 6px;
+            width: 6px;
+            background-color: #999;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        /* Link Color */
+        .action-link {
+            color: #004fff;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: opacity 0.2s;
+        }
+        .action-link:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ccc; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #aaa; 
+        }
+    </style>
+</head>
+<body class="p-4 md:p-6 min-h-screen">
+
+    <div id="app" class="max-w-[1600px] mx-auto bg-white rounded-lg shadow-sm p-6">
+        
+        <!-- Filter Section -->
+        <div class="flex flex-col gap-4 mb-6">
+            
+            <!-- Row 1: Year & Date -->
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-600 whitespace-nowrap">年级选项:</span>
+                    <select v-model="filters.year" class="ant-select-selector h-8 px-3 w-40 text-sm">
+                        <option>2024-2025学年</option>
+                        <option>2023-2024学年</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button 
+                        v-for="grade in grades" 
+                        :key="grade"
+                        @click="filters.grade = grade"
+                        :class="['px-3 py-1 rounded text-sm transition-colors', filters.grade === grade ? 'bg-blue-50 text-primary font-medium' : 'text-gray-600 hover:text-primary']"
+                    >
+                        {{ grade }}
+                    </button>
+                </div>
+
+                <div class="ml-auto flex items-center gap-2 border border-gray-200 rounded px-2 py-1 bg-white">
+                    <i class="far fa-calendar-alt text-gray-400"></i>
+                    <span class="text-sm text-gray-700">2025-08-24 ~ 2026-02-24</span>
+                    <i class="far fa-calendar text-gray-400 ml-2"></i>
+                </div>
+            </div>
+
+            <!-- Row 2: Class Filter -->
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600 whitespace-nowrap">任教班级:</span>
+                <div class="flex flex-wrap gap-2">
+                    <button 
+                        v-for="cls in classes" 
+                        :key="cls"
+                        @click="toggleClass(cls)"
+                        :class="['px-3 py-1 rounded text-sm transition-colors', selectedClasses.includes(cls) ? 'bg-blue-50 text-primary font-medium' : 'text-gray-600 hover:text-primary']"
+                    >
+                        {{ cls }}
+                    </button>
+                </div>
+            </div>
+
+            <!-- Row 3: Advanced Options & Search -->
+            <div class="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-gray-100">
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-600 whitespace-nowrap">高级选项:</span>
+                    <select class="ant-select-selector h-8 px-3 w-32 text-sm text-gray-700">
+                        <option>全部学科</option>
+                        <option>语文</option>
+                        <option>数学</option>
+                    </select>
+                    <select class="ant-select-selector h-8 px-3 w-32 text-sm text-gray-700">
+                        <option>全部模块</option>
+                        <option>必修一</option>
+                    </select>
+                </div>
+
+                <div class="relative w-full md:w-64">
+                    <input 
+                        type="text" 
+                        placeholder="请输入作业名称或序号" 
+                        class="ant-input w-full h-8 pl-3 pr-8 text-sm"
+                    >
+                    <i class="fas fa-search absolute right-3 top-2 text-gray-400 text-xs"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs & Action Button -->
+        <div class="flex flex-wrap items-center justify-between border-b border-gray-200 mb-4 pb-0">
+            <div class="flex space-x-6">
+                <button 
+                    v-for="tab in tabs" 
+                    :key="tab.id"
+                    @click="activeTab = tab.id"
+                    :class="[
+                        'pb-3 text-sm font-medium relative transition-colors',
+                        activeTab === tab.id ? 'text-primary' : 'text-gray-600 hover:text-primary'
+                    ]"
+                >
+                    {{ tab.name }}
+                    <span 
+                        v-if="activeTab === tab.id" 
+                        class="absolute bottom-0 left-0 w-full h-[2px] bg-primary"
+                    ></span>
+                </button>
+            </div>
+            
+            <button class="bg-primary hover:bg-blue-700 text-white text-sm px-4 py-1.5 rounded shadow-sm transition-colors mb-2">
+                制作作业答题卡
+            </button>
+        </div>
+
+        <!-- Data Table -->
+        <div class="overflow-x-auto">
+            <table class="custom-table">
+                <thead>
+                    <tr>
+                        <th class="w-1/4">名称</th>
+                        <th class="w-24">班级</th>
+                        <th class="w-20 text-center">已交</th>
+                        <th class="w-20 text-center">未交</th>
+                        <th class="w-48">时间</th>
+                        <th class="w-64">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in tableData" :key="index" class="group">
+                        <td>
+                            <div class="flex items-center">
+                                <span class="font-medium text-gray-800">{{ item.name }}</span>
+                                <span v-if="item.type" class="tag-orange">{{ item.type }}</span>
+                            </div>
+                        </td>
+                        <td class="text-gray-600">{{ item.class }}</td>
+                        <td class="text-center text-gray-800">{{ item.submitted }}</td>
+                        <td class="text-center text-red-500">{{ item.unsubmitted }}</td>
+                        <td>
+                            <div class="flex items-center text-gray-600">
+                                <span v-if="item.statusDot" class="status-dot"></span>
+                                <span>{{ item.time }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="flex items-center text-sm">
+                                <span v-if="item.actionText" class="text-primary mr-3 cursor-pointer hover:underline">{{ item.actionText }}</span>
+                                <span class="action-link">查看详情</span>
+                                <span class="action-link">更多</span>
+                                <span v-if="item.ebook" class="action-link text-success">{{ item.ebook }}</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination (Optional but good for realism) -->
+        <div class="flex justify-end mt-6 items-center gap-2 text-sm text-gray-600">
+            <span>共 120 条</span>
+            <button class="w-8 h-8 flex items-center justify-center border rounded hover:border-primary disabled:opacity-50" disabled><</button>
+            <button class="w-8 h-8 flex items-center justify-center border border-primary bg-primary text-white rounded">1</button>
+            <button class="w-8 h-8 flex items-center justify-center border rounded hover:border-primary hover:text-primary">2</button>
+            <button class="w-8 h-8 flex items-center justify-center border rounded hover:border-primary hover:text-primary">3</button>
+            <button class="w-8 h-8 flex items-center justify-center border rounded hover:border-primary hover:text-primary">></button>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    filters: {
+                        year: '2024-2025学年',
+                        grade: '高一'
+                    },
+                    grades: ['高一', '高二'],
+                    classes: ['全部班级', '日语班', '这个合并', '发放', '一班', '2班', '6班'],
+                    selectedClasses: ['全部班级'],
+                    activeTab: 'all',
+                    tabs: [
+                        { id: 'all', name: '全部' },
+                        { id: 'book', name: '图书作业' },
+                        { id: 'school', name: '校本作业' },
+                        { id: 'guide', name: '校本学案' },
+                        { id: 'card', name: '自制题卡' },
+                        { id: 'online', name: '在线作业' },
+                        { id: 'general', name: '通用题卡' }
+                    ],
+                    tableData: [
+                        { name: '周飞测试111', type: '线上作业', class: '2班', submitted: 0, unsubmitted: 63, time: '已结束 2026-02-13 00:00', statusDot: true, actionText: '批阅' },
+                        { name: '周飞测试111', type: '线上作业', class: '一班', submitted: 0, unsubmitted: 16, time: '已结束 2026-02-13 00:00', statusDot: true, actionText: '批阅' },
+                        { name: '周飞测试111', type: '线上作业', class: '6班', submitted: 0, unsubmitted: 59, time: '已结束 2026-02-13 00:00', statusDot: true, actionText: '批阅' },
+                        { name: ',kkkklk', type: '线上作业', class: '2班', submitted: 0, unsubmitted: 63, time: '已结束 2026-02-12 23:59', statusDot: true, actionText: '批阅' },
+                        { name: ',kkkklk', type: '线上作业', class: '一班', submitted: 0, unsubmitted: 16, time: '已结束 2026-02-12 23:59', statusDot: true, actionText: '批阅' },
+                        { name: ',kkkklk', type: '线上作业', class: '这个合并', submitted: 0, unsubmitted: 3, time: '已结束 2026-02-12 23:59', statusDot: true, actionText: '批阅' },
+                        { name: ',kkkklk', type: '线上作业', class: '6班', submitted: 0, unsubmitted: 59, time: '已结束 2026-02-12 23:59', statusDot: true, actionText: '批阅' },
+                        { name: '新卡头疼', type: null, class: '一班', submitted: 1, unsubmitted: 15, time: '2026-01-23 10:31', statusDot: false, actionText: '回评', ebook: '电子作业本' },
+                        { name: 'cpy智批文件夹', type: null, class: '6班', submitted: 32, unsubmitted: 27, time: '2026-01-23 10:31', statusDot: false, actionText: '批阅', ebook: '电子作业本' },
+                        { name: '语文填空题答案类型-名篇名句默写', type: null, class: '6班', submitted: 4, unsubmitted: 55, time: '2026-01-21 16:35', statusDot: false, actionText: '批阅', ebook: '电子作业本' },
+                        { name: '2026年01月20日语文作业', type: null, class: '6班', submitted: 1, unsubmitted: 58, time: '2026-01-21 16:28', statusDot: false, actionText: '回评', ebook: '电子作业本' },
+                        { name: '2026年01月21日数学填空', type: null, class: '6班', submitted: 1, unsubmitted: 58, time: '2026-01-21 16:28', statusDot: false, actionText: '回评', ebook: '电子作业本' },
+                        { name: '2026年01月21日英语填空', type: null, class: '6班', submitted: 1, unsubmitted: 58, time: '2026-01-21 16:28', statusDot: false, actionText: '回评', ebook: '电子作业本' },
+                        { name: '发过的', type: null, class: '一班', submitted: 1, unsubmitted: 15, time: '2026-01-21 14:07', statusDot: false, actionText: '回评', ebook: '电子作业本' }
+                    ]
+                }
+            },
+            methods: {
+                toggleClass(cls) {
+                    if (cls === '全部班级') {
+                        this.selectedClasses = ['全部班级'];
+                    } else {
+                        const index = this.selectedClasses.indexOf(cls);
+                        const allIndex = this.selectedClasses.indexOf('全部班级');
+                        
+                        if (allIndex > -1) {
+                            this.selectedClasses.splice(allIndex, 1);
+                        }
+
+                        if (index > -1) {
+                            this.selectedClasses.splice(index, 1);
+                            if(this.selectedClasses.length === 0) this.selectedClasses.push('全部班级');
+                        } else {
+                            this.selectedClasses.push(cls);
+                        }
+                    }
+                }
+            }
+        }).mount('#app');
+    </script>
+
+<!-- 页面导航监听器 (由原型生成器自动注入) -->
+<script>
+(function() {
+    // 等待 Vue 应用挂载完成
+    var checkInterval = setInterval(function() {
+        if (window.currentPage) {
+            clearInterval(checkInterval);
+            console.log('[原型] currentPage 已就绪');
+        }
+    }, 100);
+    
+    // 监听来自 viewer 的页面切换消息
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'navigateTo') {
+            var pageName = event.data.page;
+            console.log('[原型] 收到页面切换请求:', pageName);
+            
+            // 使用 window.currentPage (Vue ref)
+            if (window.currentPage && window.currentPage.value !== undefined) {
+                window.currentPage.value = pageName;
+                console.log('[原型] 已切换到页面:', pageName);
+            }
+            
+            // 通知父窗口页面已切换
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'pageChange', page: pageName }, '*');
+            }
+        }
+    });
+    
+    // 定期向父窗口报告当前页面
+    if (window.parent !== window) {
+        setInterval(function() {
+            if (window.currentPage && window.currentPage.value) {
+                window.parent.postMessage({ type: 'pageChange', page: window.currentPage.value }, '*');
+            }
+        }, 500);
+    }
+})();
+</script>
+
+</body>
+</html>
