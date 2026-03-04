@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作业管理系统</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        .tab-active {
+            color: #004fff;
+            border-bottom: 2px solid #004fff;
+        }
+        .tag {
+            background: #fef3e2;
+            color: #d97706;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-800 min-h-screen">
+    <div class="p-4">
+        <!-- 顶部筛选区域 -->
+        <div class="space-y-4 mb-6">
+            <!-- 第一行筛选 -->
+            <div class="flex items-center gap-4 flex-wrap">
+                <div class="flex items-center gap-2">
+                    <span class="text-gray-600">年级选项:</span>
+                    <select class="border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500">
+                        <option>2024-2025学年</option>
+                    </select>
+                    <div class="flex gap-4 ml-2">
+                        <span class="text-blue-600 font-medium">高一</span>
+                        <span class="text-gray-700">高二</span>
+                    </div>
+                </div>
+                <div class="ml-auto flex items-center gap-2 border border-gray-300 rounded px-3 py-1.5">
+                    <span>2025-08-24 ~ 2026-02-24</span>
+                </div>
+            </div>
+
+            <!-- 第二行筛选 -->
+            <div class="flex items-center gap-4">
+                <span class="text-gray-600">任教班级:</span>
+                <div class="flex gap-4">
+                    <span class="text-blue-600 font-medium">全部班级</span>
+                    <span class="text-gray-700">日语班</span>
+                    <span class="text-gray-700">这个合并</span>
+                    <span class="text-gray-700">发放</span>
+                    <span class="text-gray-700">一班</span>
+                    <span class="text-gray-700">2班</span>
+                    <span class="text-gray-700">6班</span>
+                </div>
+            </div>
+
+            <!-- 第三行筛选 -->
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <span class="text-gray-600">高级选项:</span>
+                    <select class="border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500">
+                        <option>全部学科</option>
+                    </select>
+                    <select class="border border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500">
+                        <option>全部模块</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2 border border-gray-200 rounded px-3 py-1.5 bg-gray-50">
+                    <input type="text" placeholder="请输入作业名称或序号" class="bg-transparent border-none outline-none text-sm">
+                    <i class="fas fa-search text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 分割线 -->
+        <div class="border-b border-gray-200 mb-4"></div>
+
+        <!-- 标签页导航 -->
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex gap-6">
+                <div class="tab-active pb-2 font-medium cursor-pointer">全部</div>
+                <div class="pb-2 text-gray-600 cursor-pointer hover:text-gray-900">图书作业</div>
+                <div class="pb-2 text-gray-600 cursor-pointer hover:text-gray-900">校本作业</div>
+                <div class="pb-2 text-gray-600 cursor-pointer hover:text-gray-900">校本学案</div>
+                <div class="pb-2 text-gray-600 cursor-pointer hover:text-gray-900">自制题卡</div>
+                <div class="pb-2 text-gray-600 cursor-pointer hover:text-gray-900">在线作业</div>
+                <div class="pb-2 text-gray-600 cursor-pointer hover:text-gray-900">通用题卡</div>
+            </div>
+            <button class="bg-blue-600 text-white px-4 py-1.5 rounded text-sm hover:bg-blue-700 transition-colors">
+                制作作业答题卡
+            </button>
+        </div>
+
+        <!-- 表格区域 -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+            <table class="w-full">
+                <thead>
+                    <tr class="border-b border-gray-200 text-left text-sm">
+                        <th class="p-4 font-medium">名称</th>
+                        <th class="p-4 font-medium">班级</th>
+                        <th class="p-4 font-medium">已交</th>
+                        <th class="p-4 font-medium">未交</th>
+                        <th class="p-4 font-medium">时间</th>
+                        <th class="p-4 font-medium">操作</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white">
+                    <!-- 行1 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>周飞 测试111</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">2班</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">63</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-13 00:00
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行2 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>周飞 测试111</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">一班</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">16</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-13 00:00
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行3 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>周飞 测试111</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">59</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-13 00:00
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行4 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>,kkklklk</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">2班</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">63</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-12 23:59
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行5 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>,kkklklk</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">一班</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">16</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-12 23:59
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行6 -->
+                    <tr class="border-b border-gray-100 hover:bg-blue-50 bg-blue-50/50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>,kkklklk</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">这个合并</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">3</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-12 23:59
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行7 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">
+                            <div class="flex items-center gap-2">
+                                <span>,kkklklk</span>
+                                <span class="tag">线上作业</span>
+                            </div>
+                        </td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">0</td>
+                        <td class="p-4 text-red-500">59</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-2 text-gray-500">
+                                <span class="w-2 h-2 rounded-full bg-gray-400"></span>
+                                已结束 2026-02-12 23:59
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-gray-400">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">更多</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行8 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">新卡头疼</td>
+                        <td class="p-4">一班</td>
+                        <td class="p-4">1</td>
+                        <td class="p-4 text-red-500">15</td>
+                        <td class="p-4">2026-01-23 10:31</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">回评</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行9 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">cpy智批文件夹</td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">32</td>
+                        <td class="p-4 text-red-500">27</td>
+                        <td class="p-4">2026-01-23 10:31</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 行10 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">语文填空题答案类型-名篇名句默写</td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">4</td>
+                        <td class="p-4 text-red-500">55</td>
+                        <td class="p-4">2026-01-21 16:35</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">批阅</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <!-- 更多行 -->
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">2026年01月20日语文作业</td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">1</td>
+                        <td class="p-4 text-red-500">58</td>
+                        <td class="p-4">2026-01-21 16:28</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">回评</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">2026年01月21日数学填空</td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">1</td>
+                        <td class="p-4 text-red-500">58</td>
+                        <td class="p-4">2026-01-21 16:28</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">回评</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="border-b border-gray-100 hover:bg-gray-50">
+                        <td class="p-4">2026年01月21日英语填空</td>
+                        <td class="p-4">6班</td>
+                        <td class="p-4">1</td>
+                        <td class="p-4 text-red-500">58</td>
+                        <td class="p-4">2026-01-21 16:28</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">回评</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-4">发过的</td>
+                        <td class="p-4">一班</td>
+                        <td class="p-4">1</td>
+                        <td class="p-4 text-red-500">15</td>
+                        <td class="p-4">2026-01-21 14:07</td>
+                        <td class="p-4">
+                            <div class="flex gap-3 text-sm">
+                                <span class="text-blue-600 cursor-pointer">回评</span>
+                                <span class="text-blue-600 cursor-pointer">查看详情</span>
+                                <span class="text-blue-600 cursor-pointer">电子作业本</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 右下角帮助按钮 -->
+        <div class="fixed bottom-4 right-4 flex flex-col gap-2">
+            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white cursor-pointer shadow-lg">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="w-10 h-10 bg-gray-500 rounded-full flex items-center justify-center text-white cursor-pointer shadow-lg">
+                <i class="fas fa-question"></i>
+            </div>
+        </div>
+    </div>
+
+<!-- 页面导航监听器 (由原型生成器自动注入) -->
+<script>
+(function() {
+    // 等待 Vue 应用挂载完成
+    var checkInterval = setInterval(function() {
+        if (window.currentPage) {
+            clearInterval(checkInterval);
+            console.log('[原型] currentPage 已就绪');
+        }
+    }, 100);
+    
+    // 监听来自 viewer 的页面切换消息
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'navigateTo') {
+            var pageName = event.data.page;
+            console.log('[原型] 收到页面切换请求:', pageName);
+            
+            // 使用 window.currentPage (Vue ref)
+            if (window.currentPage && window.currentPage.value !== undefined) {
+                window.currentPage.value = pageName;
+                console.log('[原型] 已切换到页面:', pageName);
+            }
+            
+            // 通知父窗口页面已切换
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'pageChange', page: pageName }, '*');
+            }
+        }
+    });
+    
+    // 定期向父窗口报告当前页面
+    if (window.parent !== window) {
+        setInterval(function() {
+            if (window.currentPage && window.currentPage.value) {
+                window.parent.postMessage({ type: 'pageChange', page: window.currentPage.value }, '*');
+            }
+        }, 500);
+    }
+})();
+</script>
+
+</body>
+</html>
