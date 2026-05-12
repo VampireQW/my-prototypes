@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+
+<!-- 纯预览模式 - 需要网络加载外部资源 -->
+<noscript>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
+        .offline-notice { background: #fef3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    </style>
+    <div class="offline-notice">⚠️ 请启用 JavaScript 以查看此原型</div>
+</noscript>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教学测评系统 - Vercel Style</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <!-- Tailwind Configuration for Vercel Design System -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: {
+                        vercel: {
+                            black: '#171717',
+                            white: '#ffffff',
+                            gray: {
+                                50: '#fafafa',
+                                100: '#ebebeb',
+                                400: '#808080',
+                                500: '#666666',
+                                600: '#4d4d4d',
+                                900: '#171717'
+                            },
+                            blue: '#0070f3',
+                            blue_light: '#ebf5ff',
+                            blue_text: '#0068d6',
+                            red: '#e00',
+                            red_light: '#ffebe9'
+                        }
+                    },
+                    boxShadow: {
+                        'v-border': '0px 0px 0px 1px rgba(0,0,0,0.08)',
+                        'v-card': '0px 0px 0px 1px rgba(0,0,0,0.08), 0px 2px 4px rgba(0,0,0,0.04)',
+                        'v-card-hover': '0px 0px 0px 1px rgba(0,0,0,0.12), 0px 4px 8px rgba(0,0,0,0.08)',
+                        'v-ring': '0 0 0 2px #fff, 0 0 0 4px #0070f3'
+                    },
+                    letterSpacing: {
+                        'v-tight': '-0.02em',
+                        'v-tighter': '-0.04em',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #fafafa;
+            color: #171717;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevent body scroll, handle internally */
+        }
+
+        /* Custom Scrollbar for a cleaner look */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #ebebeb;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #cccccc;
+        }
+
+        /* Vercel Utility Classes */
+        .v-input {
+            background: #ffffff;
+            box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            transition: box-shadow 0.2s ease;
+            outline: none;
+        }
+        .v-input:focus {
+            box-shadow: 0 0 0 2px #fff, 0 0 0 4px #0070f3;
+        }
+
+        .v-btn-secondary {
+            background-color: #ffffff;
+            color: #171717;
+            box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.08);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .v-btn-secondary:hover {
+            background-color: #fafafa;
+            box-shadow: 0px 0px 0px 1px rgba(0,0,0,0.12);
+        }
+
+        .v-btn-primary {
+            background-color: #171717;
+            color: #ffffff;
+            border-radius: 6px;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+            border: none;
+        }
+        .v-btn-primary:hover {
+            background-color: #333333;
+        }
+
+        .v-badge-blue {
+            background-color: #ebf5ff;
+            color: #0068d6;
+            border-radius: 9999px;
+            padding: 2px 8px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* Layout constraints */
+        .layout-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .main-content-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app" class="layout-container">
+    <!-- Top Navigation (Global) -->
+    <header class="bg-vercel-white shadow-v-border h-14 flex items-center justify-between px-6 shrink-0 z-20 relative">
+        <div class="flex items-center gap-8">
+            <div class="flex items-center gap-2 text-vercel-blue font-semibold text-lg tracking-v-tight cursor-pointer">
+                <i class="fa-solid fa-graduation-cap text-xl"></i>
+                <span>演示学校</span>
+            </div>
+            <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-vercel-gray-500">
+                <a href="#" class="hover:text-vercel-black transition-colors">首页</a>
+                <a href="#" class="text-vercel-black relative">
+                    备课授课
+                    <span class="absolute -bottom-[19px] left-0 w-full h-[2px] bg-vercel-black"></span>
+                </a>
+                <a href="#" class="hover:text-vercel-black transition-colors">题库卷库</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">作业</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">考试</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">错题本</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">学情分析</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">试卷库</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">资源库</a>
+                <a href="#" class="hover:text-vercel-black transition-colors">班级管理</a>
+            </nav>
+        </div>
+        <div class="flex items-center gap-4">
+            <button class="text-vercel-gray-500 hover:text-vercel-black transition-colors">
+                <i class="fa-solid fa-border-all text-lg"></i>
+            </button>
+            <div class="w-8 h-8 rounded-full bg-vercel-gray-100 shadow-v-border overflow-hidden cursor-pointer">
+                <img src="https://i.pravatar.cc/150?img=11" alt="User" class="w-full h-full object-cover">
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub Navigation -->
+    <div class="bg-vercel-white shadow-v-border h-12 flex items-center px-6 shrink-0 z-10 relative">
+        <nav class="flex items-center gap-6 text-sm text-vercel-gray-500 font-medium h-full">
+            <a href="#" class="hover:text-vercel-black transition-colors">PPT课件</a>
+            <a href="#" class="hover:text-vercel-black transition-colors">PDF课件</a>
+            <a href="#" class="hover:text-vercel-black transition-colors">备课文档</a>
+            <a href="#" class="text-vercel-blue relative h-full flex items-center">
+                课时作业
+                <span class="absolute bottom-0 left-0 w-full h-[2px] bg-vercel-blue"></span>
+            </a>
+            <a href="#" class="hover:text-vercel-black transition-colors">一课一背</a>
+            <a href="#" class="hover:text-vercel-black transition-colors">每日任务</a>
+            <a href="#" class="hover:text-vercel-black transition-colors">课堂回顾</a>
+            <a href="#" class="hover:text-vercel-black transition-colors">自主课堂评价</a>
+            <a href="#" class="hover:text-vercel-black transition-colors">电子书架</a>
+        </nav>
+        <div class="ml-auto flex gap-3 text-vercel-gray-500">
+            <button class="hover:text-vercel-black"><i class="fa-regular fa-file-lines"></i></button>
+            <button class="hover:text-vercel-black"><i class="fa-solid fa-gear"></i></button>
+        </div>
+    </div>
+
+    <!-- Main Workspace -->
+    <div class="main-content-wrapper">
+        
+        <!-- Left Sidebar (Tree Nav) -->
+        <aside class="w-64 bg-vercel-white shadow-[1px_0_0_0_rgba(0,0,0,0.08)] flex flex-col shrink-0 z-0">
+            <div class="p-4 flex items-center justify-between shadow-[0_1px_0_0_rgba(0,0,0,0.08)]">
+                <div class="flex items-center gap-2 font-medium text-sm">
+                    <div class="w-6 h-6 bg-yellow-100 text-yellow-600 rounded flex items-center justify-center text-xs shadow-v-border">数</div>
+                    <span>数学_必修第二册</span>
+                </div>
+                <button class="text-vercel-blue text-xs font-medium hover:underline flex items-center gap-1">
+                    <i class="fa-solid fa-right-left"></i> 切换
+                </button>
+            </div>
+            <div class="flex-1 overflow-y-auto p-2">
+                <!-- Tree Nodes -->
+                <div class="space-y-1 text-sm text-vercel-gray-600">
+                    <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                        <i class="fa-solid fa-caret-down text-xs w-3"></i>
+                        <span class="font-medium text-vercel-black">第六章 平面向量及其应用</span>
+                    </div>
+                    <div class="pl-6 space-y-1">
+                        <div class="flex items-center justify-between p-2 bg-vercel-blue_light text-vercel-blue rounded cursor-pointer">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-regular fa-file-lines text-xs"></i>
+                                <span class="font-medium">§6.1 平面向量的概念</span>
+                            </div>
+                            <i class="fa-solid fa-ellipsis text-xs"></i>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                            <i class="fa-solid fa-caret-right text-xs w-3 text-transparent"></i>
+                            <span>§6.2 平面向量的运算</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                            <i class="fa-solid fa-caret-right text-xs w-3 text-transparent"></i>
+                            <span>§6.3 平面向量基本定理及坐标表示</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                            <i class="fa-solid fa-caret-right text-xs w-3 text-transparent"></i>
+                            <span>§6.4 平面向量的应用</span>
+                        </div>
+                        <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                            <i class="fa-regular fa-file-lines text-xs w-3"></i>
+                            <span>章末复习课</span>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer mt-2">
+                        <i class="fa-solid fa-caret-right text-xs w-3"></i>
+                        <span>第七章 复数</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                        <i class="fa-solid fa-caret-right text-xs w-3"></i>
+                        <span>第八章 立体几何初步 (第一版)</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                        <i class="fa-solid fa-caret-right text-xs w-3"></i>
+                        <span>第九章 统计</span>
+                    </div>
+                    <div class="flex items-center gap-2 p-2 hover:bg-vercel-gray-50 rounded cursor-pointer">
+                        <i class="fa-solid fa-caret-right text-xs w-3"></i>
+                        <span>第十章 概率</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center Content Area -->
+        <main class="flex-1 overflow-y-auto bg-vercel-gray-50 flex flex-col relative">
+            
+            <!-- Top Actions/Tabs -->
+            <div class="bg-vercel-white px-8 pt-4 pb-0 shadow-[0_1px_0_0_rgba(0,0,0,0.08)] shrink-0">
+                <div class="flex gap-6 text-sm font-medium text-vercel-gray-500 mb-4">
+                    <button class="text-vercel-blue pb-2 border-b-2 border-vercel-blue">效果测评</button>
+                    <button class="hover:text-vercel-black pb-2">配套作业</button>
+                    <button class="hover:text-vercel-black pb-2 flex items-center gap-1 text-vercel-blue">
+                        <i class="fa-solid fa-plus"></i> 新建作业
+                    </button>
+                </div>
+            </div>
+
+            <!-- Content Header -->
+            <div class="px-8 py-6 shrink-0">
+                <div class="flex justify-between items-start mb-6">
+                    <h1 class="text-2xl font-semibold tracking-v-tight text-vercel-black">数学测试主观题智批【效果测评】</h1>
+                    <div class="flex gap-2">
+                        <button class="v-btn-secondary"><i class="fa-regular fa-circle-check"></i> 对答案</button>
+                        <button class="v-btn-secondary"><i class="fa-solid fa-pen-to-square"></i> 改编</button>
+                        <button class="v-btn-secondary"><i class="fa-solid fa-person-chalkboard"></i> 授课</button>
+                        <button class="v-btn-secondary"><i class="fa-solid fa-ellipsis"></i> 更多</button>
+                    </div>
+                </div>
+
+                <!-- Filters & Stats -->
+                <div class="flex items-center justify-between bg-vercel-white p-3 rounded-lg shadow-v-card">
+                    <div class="flex items-center gap-4 text-sm">
+                        <select class="v-input w-24">
+                            <option>6班</option>
+                        </select>
+                        <select class="v-input w-32">
+                            <option>按题号排序</option>
+                        </select>
+                        
+                        <div class="h-4 w-[1px] bg-vercel-gray-100 mx-2"></div>
+                        
+                        <span class="text-vercel-gray-500">已交人数: <span class="text-vercel-black font-medium">10</span></span>
+                        <span class="text-vercel-gray-500">未交人数: <span class="text-vercel-red font-medium">4</span> <a href="#" class="text-vercel-blue hover:underline">(异常题卡)</a></span>
+                        
+                        <div class="h-4 w-[1px] bg-vercel-gray-100 mx-2"></div>
+                        
+                        <span class="text-vercel-gray-500">作业满分: <span class="text-vercel-black font-medium">92</span></span>
+                        <span class="text-vercel-gray-500">作业平均分: <span class="text-vercel-blue font-medium">23.9</span></span>
+                        
+                        <!-- Toggle -->
+                        <div class="ml-2 w-8 h-4 bg-vercel-blue rounded-full relative cursor-pointer">
+                            <div class="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full shadow-sm"></div>
+                        </div>
+                    </div>
+                    <button class="v-btn-primary flex items-center gap-2">
+                        <i class="fa-solid fa-book"></i> 电子作业本
+                    </button>
+                </div>
+            </div>
+
+            <!-- Questions List -->
+            <div class="px-8 pb-12 flex-1 space-y-6">
+                
+                <!-- Question Card 1 -->
+                <div class="bg-vercel-white rounded-xl shadow-v-card overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="bg-vercel-blue text-white px-4 py-1.5 flex items-center justify-between text-sm font-medium rounded-t-xl" style="width: max-content; border-bottom-right-radius: 12px; border-top-right-radius: 0;">
+                        <span>第1题</span>
+                        <i class="fa-solid fa-bookmark text-yellow-400 ml-4"></i>
+                    </div>
+                    
+                    <div class="p-6">
+                        <!-- Question Content -->
+                        <div class="mb-6 text-base text-vercel-black font-serif">
+                            函数 $f(x) = \frac{\sqrt{2-x}}{\lg x}$ 的定义域是 _______________.
+                        </div>
+
+                        <!-- Question Meta Stats -->
+                        <div class="flex items-center justify-between text-sm mb-4 pb-4 border-b border-vercel-gray-100">
+                            <div class="flex gap-6 text-vercel-gray-500">
+                                <span>班级得分率: <span class="text-vercel-black font-medium">0%</span></span>
+                                <span>年级得分率: <span class="text-vercel-black font-medium">0%</span></span>
+                                <span>需讲解: <span class="text-vercel-blue font-medium cursor-pointer hover:underline">1人</span></span>
+                            </div>
+                            <div class="flex gap-4">
+                                <button class="text-vercel-blue hover:underline flex items-center gap-1"><i class="fa-solid fa-chart-line"></i> 数据分析</button>
+                                <button class="text-vercel-gray-500 hover:text-vercel-black flex items-center gap-1"><i class="fa-solid fa-circle-plus"></i> 类题加练 (1)</button>
+                                <button class="text-vercel-gray-500 hover:text-vercel-black flex items-center gap-1"><i class="fa-solid fa-expand"></i> 全屏显示</button>
+                            </div>
+                        </div>
+
+                        <!-- Split View: Stats & Image -->
+                        <div class="flex gap-6">
+                            <!-- Left: Score Distribution -->
+                            <div class="w-[45%] flex flex-col">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex bg-vercel-gray-50 rounded-md p-1 shadow-v-border">
+                                        <button class="px-3 py-1 bg-white shadow-sm rounded text-sm text-vercel-blue font-medium">列表</button>
+                                        <button class="px-3 py-1 text-sm text-vercel-gray-500 hover:text-vercel-black font-medium">图表</button>
+                                    </div>
+                                    <div class="flex gap-3 text-sm">
+                                        <span class="text-vercel-blue font-medium cursor-pointer">全部 (10)</span>
+                                        <span class="text-vercel-gray-500 hover:text-vercel-black cursor-pointer">优秀作答 (0)</span>
+                                        <span class="text-vercel-gray-500 hover:text-vercel-black cursor-pointer">典型错误 (0)</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-center text-sm text-vercel-gray-500 mb-2 px-2">
+                                    <span>得分分组</span>
+                                    <button class="text-vercel-blue hover:underline text-xs">全部展开 <i class="fa-solid fa-chevron-down"></i></button>
+                                </div>
+
+                                <div class="space-y-4">
+                                    <!-- Group 1 -->
+                                    <div class="flex items-center text-sm group">
+                                        <div class="w-20 text-vercel-gray-600">满分 <span class="text-xs text-vercel-gray-400">(5)</span></div>
+                                        <div class="flex-1 mx-4 h-1.5 bg-vercel-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-emerald-500 w-0 rounded-full"></div>
+                                        </div>
+                                        <div class="w-32 flex justify-between items-center text-vercel-gray-500">
+                                            <span>0人</span>
+                                            <span class="text-xs">占比0%</span>
+                                            <span class="w-4 text-center">-</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Group 2 -->
+                                    <div class="flex items-center text-sm group cursor-pointer">
+                                        <div class="w-20 text-vercel-blue flex items-center gap-1">半对 <i class="fa-solid fa-chevron-down text-[10px]"></i></div>
+                                        <div class="flex-1 mx-4 h-1.5 bg-vercel-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-blue-400 w-0 rounded-full"></div>
+                                        </div>
+                                        <div class="w-32 flex justify-between items-center text-vercel-gray-500">
+                                            <span>0人</span>
+                                            <span class="text-xs">占比0%</span>
+                                            <span class="w-4 text-center">-</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Group 3 -->
+                                    <div class="flex items-center text-sm group">
+                                        <div class="w-20 text-vercel-gray-600">零分 <span class="text-xs text-vercel-gray-400">(0)</span></div>
+                                        <div class="flex-1 mx-4 h-1.5 bg-vercel-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-red-500 w-[80%] rounded-full"></div>
+                                        </div>
+                                        <div class="w-32 flex justify-between items-center">
+                                            <span class="font-medium text-vercel-black">8人</span>
+                                            <span class="text-xs text-vercel-gray-500">占比80%</span>
+                                            <a href="#" class="text-vercel-blue text-xs hover:underline">查看更多</a>
+                                        </div>
+                                    </div>
+                                    <!-- Avatars for Group 3 -->
+                                    <div class="pl-24 flex gap-2 text-xs text-vercel-blue">
+                                        <span class="bg-vercel-blue_light px-2 py-0.5 rounded">41</span>
+                                        <span class="bg-vercel-blue_light px-2 py-0.5 rounded">43</span>
+                                        <span class="text-vercel-gray-400">...</span>
+                                    </div>
+
+                                    <!-- Group 4 -->
+                                    <div class="flex items-center text-sm group">
+                                        <div class="w-20 text-vercel-gray-600">未批阅</div>
+                                        <div class="flex-1 mx-4 h-1.5 bg-vercel-gray-100 rounded-full overflow-hidden">
+                                            <div class="h-full bg-vercel-gray-400 w-[20%] rounded-full"></div>
+                                        </div>
+                                        <div class="w-32 flex justify-between items-center">
+                                            <span class="font-medium text-vercel-black">2人</span>
+                                            <span class="text-xs text-vercel-gray-500">占比20%</span>
+                                            <a href="#" class="text-vercel-blue text-xs hover:underline">查看更多</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right: Image Viewer -->
+                            <div class="flex-1 border border-vercel-gray-100 rounded-lg bg-vercel-gray-50 relative flex flex-col">
+                                <div class="absolute top-2 left-2 flex items-center gap-2 z-10">
+                                    <span class="font-bold text-vercel-black">41</span>
+                                    <span class="font-bold text-vercel-red">0分</span>
+                                    <span class="v-badge-blue bg-green-100 text-green-700 text-[10px] px-1.5">AI</span>
+                                </div>
+                                <div class="absolute top-2 right-2 flex gap-2 z-10">
+                                    <button class="v-btn-secondary text-xs py-1 px-2 border-green-500 text-green-600">优秀作答</button>
+                                    <button class="v-btn-secondary text-xs py-1 px-2 border-red-500 text-red-600">典型错误</button>
+                                    <button class="v-btn-secondary text-xs py-1 px-2">1:1</button>
+                                    <button class="v-btn-secondary text-xs py-1 px-2"><i class="fa-solid fa-expand"></i></button>
+                                </div>
+                                
+                                <div class="flex-1 flex items-center justify-center p-8 relative overflow-hidden group">
+                                    <!-- Mock Image Content -->
+                                    <div class="w-full h-32 border-b-2 border-vercel-gray-400 relative">
+                                        <div class="absolute bottom-2 left-4 text-vercel-black font-serif text-lg">
+                                            (0, 2)
+                                        </div>
+                                        <!-- Red cross mark -->
+                                        <div class="absolute bottom-2 right-1/4 text-red-500 text-4xl font-light">×</div>
+                                    </div>
+
+                                    <!-- Navigation Arrows -->
+                                    <button class="absolute left-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/20 text-white flex items-center justify-center hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100">
+                                        <i class="fa-solid fa-chevron-left"></i>
+                                    </button>
+                                    <button class="absolute right-2 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-black/20 text-white flex items-center justify-center hover:bg-black/40 transition-colors opacity-0 group-hover:opacity-100">
+                                        <i class="fa-solid fa-chevron-right"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Card 2 (Partial/Skeleton for realism) -->
+                <div class="bg-vercel-white rounded-xl shadow-v-card overflow-hidden opacity-70">
+                    <div class="bg-vercel-blue text-white px-4 py-1.5 flex items-center justify-between text-sm font-medium rounded-t-xl" style="width: max-content; border-bottom-right-radius: 12px; border-top-right-radius: 0;">
+                        <span>第2题</span>
+                        <i class="fa-solid fa-bookmark text-vercel-gray-400 ml-4"></i>
+                    </div>
+                    <div class="p-6">
+                        <div class="mb-2 text-base text-vercel-black font-serif">
+                            已知 $\sin(\alpha-\beta) = -\frac{1}{3}$，$\cos\alpha\sin\beta = \frac{1}{6}$，则 $\cos(2\alpha+2\beta) = $ _______________.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+
+        <!-- Right Sidebar (Report Table) -->
+        <aside class="w-96 bg-vercel-white shadow-[-1px_0_0_0_rgba(0,0,0,0.08)] flex flex-col shrink-0 z-10 relative">
+            
+            <!-- Floating Actions Toolbar (attached to left edge of this sidebar) -->
+            <div class="absolute -left-10 top-1/3 flex flex-col gap-2 bg-white shadow-v-card rounded-l-md overflow-hidden py-2">
+                <button class="w-10 h-10 flex items-center justify-center text-vercel-gray-500 hover:text-vercel-black hover:bg-vercel-gray-50 tooltip-trigger relative">
+                    <i class="fa-solid fa-circle-question"></i>
+                </button>
+                <button class="w-10 h-10 flex items-center justify-center text-vercel-gray-500 hover:text-vercel-black hover:bg-vercel-gray-50">
+                    <i class="fa-solid fa-rotate-right"></i>
+                </button>
+                <button class="w-10 h-10 flex items-center justify-center text-vercel-gray-500 hover:text-vercel-black hover:bg-vercel-gray-50">
+                    <i class="fa-solid fa-headset"></i>
+                </button>
+                <button class="w-10 h-10 flex items-center justify-center text-vercel-gray-500 hover:text-vercel-black hover:bg-vercel-gray-50">
+                    <i class="fa-solid fa-phone"></i>
+                </button>
+                <button class="w-10 h-10 flex items-center justify-center text-vercel-gray-500 hover:text-vercel-black hover:bg-vercel-gray-50">
+                    <i class="fa-brands fa-rocketchat"></i>
+                </button>
+            </div>
+
+            <!-- Tabs -->
+            <div class="p-4 border-b border-vercel-gray-100 flex items-center justify-between">
+                <div class="flex gap-4 text-sm font-medium">
+                    <button class="text-vercel-blue relative">
+                        讲评报表
+                        <span class="absolute -bottom-[17px] left-0 w-full h-[2px] bg-vercel-blue"></span>
+                    </button>
+                    <button class="text-vercel-gray-500 hover:text-vercel-black">作业图片</button>
+                    <button class="text-vercel-gray-500 hover:text-vercel-black">原始成绩</button>
+                </div>
+                <div class="flex gap-2 text-vercel-gray-400">
+                    <button class="hover:text-vercel-black"><i class="fa-regular fa-copy"></i></button>
+                    <button class="hover:text-vercel-black"><i class="fa-solid fa-ellipsis"></i></button>
+                </div>
+            </div>
+
+            <div class="p-4 flex-1 overflow-y-auto">
+                <div class="flex gap-2 mb-4">
+                    <button class="px-3 py-1 bg-vercel-blue_light text-vercel-blue text-xs font-medium rounded">题目标签</button>
+                    <button class="px-3 py-1 text-vercel-gray-500 hover:bg-vercel-gray-50 text-xs font-medium rounded shadow-v-border">题型明细</button>
+                </div>
+
+                <!-- Data Table -->
+                <div class="rounded-lg shadow-v-border overflow-hidden">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-vercel-blue_light text-vercel-gray-600 font-medium border-b border-vercel-gray-100 text-xs">
+                            <tr>
+                                <th class="py-3 px-4 w-16">题号</th>
+                                <th class="py-3 px-2">年级平均分</th>
+                                <th class="py-3 px-2">6班-改平均分</th>
+                                <th class="py-3 px-2">年级得分率</th>
+                                <th class="py-3 px-2">6班-改得分率</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-vercel-black divide-y divide-vercel-gray-100">
+                            <!-- Row 1 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer bg-blue-50/30">
+                                <td class="py-3 px-4 relative">
+                                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-vercel-blue"></div>
+                                    <div class="flex items-center gap-1">
+                                        <i class="fa-solid fa-bookmark text-yellow-400 text-[10px]"></i> 1
+                                    </div>
+                                </td>
+                                <td class="py-3 px-2">0</td>
+                                <td class="py-3 px-2">0</td>
+                                <td class="py-3 px-2">0%</td>
+                                <td class="py-3 px-2">0%</td>
+                            </tr>
+                            <!-- Row 2 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">2</td>
+                                <td class="py-3 px-2">0</td>
+                                <td class="py-3 px-2">0</td>
+                                <td class="py-3 px-2">0%</td>
+                                <td class="py-3 px-2">0%</td>
+                            </tr>
+                            <!-- Row 3 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">3</td>
+                                <td class="py-3 px-2">0</td>
+                                <td class="py-3 px-2">0</td>
+                                <td class="py-3 px-2">0%</td>
+                                <td class="py-3 px-2">0%</td>
+                            </tr>
+                            <!-- Row 4 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">4</td>
+                                <td class="py-3 px-2">4.9</td>
+                                <td class="py-3 px-2">4.9</td>
+                                <td class="py-3 px-2">37.7%</td>
+                                <td class="py-3 px-2">37.7%</td>
+                            </tr>
+                            <!-- Row 5 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">5</td>
+                                <td class="py-3 px-2">11.9</td>
+                                <td class="py-3 px-2">11.9</td>
+                                <td class="py-3 px-2">79.3%</td>
+                                <td class="py-3 px-2">79.3%</td>
+                            </tr>
+                            <!-- Row 6 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">6</td>
+                                <td class="py-3 px-2">1.1</td>
+                                <td class="py-3 px-2">1.1</td>
+                                <td class="py-3 px-2">7.3%</td>
+                                <td class="py-3 px-2">7.3%</td>
+                            </tr>
+                            <!-- Row 7 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">
+                                    <div class="flex items-center gap-1">
+                                        <i class="fa-solid fa-bookmark text-yellow-400 text-[10px]"></i> 7
+                                    </div>
+                                </td>
+                                <td class="py-3 px-2">4.3</td>
+                                <td class="py-3 px-2">4.3</td>
+                                <td class="py-3 px-2">25.3%</td>
+                                <td class="py-3 px-2">25.3%</td>
+                            </tr>
+                            <!-- Row 8 -->
+                            <tr class="hover:bg-vercel-gray-50 cursor-pointer">
+                                <td class="py-3 px-4">8</td>
+                                <td class="py-3 px-2">1.7</td>
+                                <td class="py-3 px-2">1.7</td>
+                                <td class="py-3 px-2">10%</td>
+                                <td class="py-3 px-2">10%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+</div>
+
+<script>
+    const { createApp, ref } = Vue;
+
+    createApp({
+        setup() {
+            // Vue logic can be added here if interactivity is needed.
+            // For this prototype, mostly static structure with Tailwind classes handles the visual states.
+            
+            return {
+                
+            }
+        }
+    }).mount('#app');
+</script>
+
+<!-- MathJax for rendering math formulas (simulating realistic content) -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']]
+    }
+  };
+</script>
+
+
+<!-- 页面导航监听器 (由原型生成器自动注入) -->
+<script>
+(function() {
+    // 等待 Vue 应用挂载完成
+    var checkInterval = setInterval(function() {
+        if (window.currentPage) {
+            clearInterval(checkInterval);
+            console.log('[原型] currentPage 已就绪');
+        }
+    }, 100);
+
+    // 监听来自 viewer 的页面切换消息
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'navigateTo') {
+            var pageName = event.data.page;
+            console.log('[原型] 收到页面切换请求:', pageName);
+
+            // 使用 window.currentPage (Vue ref)
+            if (window.currentPage && window.currentPage.value !== undefined) {
+                window.currentPage.value = pageName;
+                console.log('[原型] 已切换到页面:', pageName);
+            }
+
+            // 通知父窗口页面已切换
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'pageChange', page: pageName }, '*');
+            }
+        }
+    });
+
+    // 定期向父窗口报告当前页面
+    if (window.parent !== window) {
+        setInterval(function() {
+            if (window.currentPage && window.currentPage.value) {
+                window.parent.postMessage({ type: 'pageChange', page: window.currentPage.value }, '*');
+            }
+        }, 500);
+    }
+})();
+</script>
+
+</body>
+</html>
