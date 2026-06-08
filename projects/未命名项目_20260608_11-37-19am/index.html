@@ -1,301 +1,1136 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>未命名项目 - 原型预览</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+
+<!-- 纯预览模式 - 需要网络加载外部资源 -->
+<noscript>
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
-        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
-        .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-        .prd-sidebar { transition: width 0.3s ease; position: relative; }
-        .prd-sidebar.collapsed { width: 48px; }
-        .prd-sidebar.expanded { width: 420px; }
-        .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 0.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
-        .markdown-body h2 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
-        .markdown-body h3 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.5rem; }
-        .markdown-body p { margin: 0.5rem 0; line-height: 1.6; }
-        .markdown-body ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style-type: disc; }
-        .markdown-body ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style-type: decimal; }
-        .markdown-body li { margin: 0.25rem 0; display: list-item; }
-        .markdown-body code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.875rem; }
-        .markdown-body pre { background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.75rem 0; }
-        .markdown-body pre code { background: transparent; padding: 0; color: inherit; }
-        .markdown-body blockquote { border-left: 4px solid #6366f1; padding-left: 1rem; margin: 0.75rem 0; color: #6b7280; }
-        .markdown-body table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
-        .markdown-body th, .markdown-body td { border: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; }
-        .markdown-body th { background: #f9fafb; font-weight: 600; }
-        .page-item { transition: all 0.2s ease; }
-        .page-item:hover { background: #f3f4f6; }
-        .page-item.active { background: #eef2ff; border-left: 3px solid #6366f1; }
-        .preview-frame-mobile { width: 390px; height: 844px; border-radius: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
-        .preview-frame-web { width: 100%; height: 100%; max-width: 1200px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; padding: 20px; }
+        .offline-notice { background: #fef3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     </style>
+    <div class="offline-notice">⚠️ 请启用 JavaScript 以查看此原型</div>
+</noscript>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扫码提交规则设置 - 演示学校</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f5f5f5; color: #333; font-size: 14px; }
+
+  .top-header {
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+  .top-header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #004fff;
+    letter-spacing: 4px;
+  }
+  .top-header .school-name {
+    font-size: 14px;
+    color: #333;
+    margin-left: 12px;
+    font-weight: 500;
+  }
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .top-nav a {
+    padding: 0 14px;
+    height: 48px;
+    line-height: 48px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+    position: relative;
+  }
+  .top-nav a:hover { color: #004fff; }
+  .top-nav a.active {
+    color: #004fff;
+  }
+  .top-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: #004fff;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #666;
+  }
+  .user-info img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e0e0e0;
+  }
+
+  /* View Toggle */
+  .view-toggle {
+    display: flex;
+    align-items: center;
+    border: 1px solid #004fff;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-right: 16px;
+  }
+  .view-toggle button {
+    border: none;
+    background: #fff;
+    color: #004fff;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .view-toggle button.active {
+    background: #004fff;
+    color: #fff;
+  }
+
+  .sidebar {
+    width: 120px;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    bottom: 0;
+    background: #fff;
+    border-right: 1px solid #e8e8e8;
+    padding-top: 12px;
+    overflow-y: auto;
+    z-index: 50;
+  }
+  .sidebar-section {
+    margin-bottom: 8px;
+  }
+  .sidebar-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    padding: 8px 16px;
+  }
+  .sidebar-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    line-height: 1.6;
+  }
+  .sidebar-item:hover { color: #004fff; background: #f0f5ff; }
+  .sidebar-item.active { color: #004fff; background: #e6f0ff; font-weight: 500; }
+  .sidebar-divider {
+    height: 1px;
+    background: #e8e8e8;
+    margin: 8px 16px;
+  }
+
+  .main-content {
+    margin-left: 120px;
+    margin-top: 48px;
+    padding: 0;
+    min-height: calc(100vh - 48px);
+    background: #fff;
+  }
+  .main-content.full {
+    margin-left: 0;
+  }
+
+  .sub-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fff;
+  }
+  .sub-tab {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+  }
+  .sub-tab:hover { color: #004fff; }
+  .sub-tab.active {
+    color: #004fff;
+    font-weight: 500;
+  }
+  .sub-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: #004fff;
+  }
+
+  .content-area {
+    padding: 20px 24px;
+  }
+
+  .grade-row, .subject-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 4px;
+  }
+  .grade-label, .subject-label {
+    font-size: 14px;
+    color: #666;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  .grade-tag, .subject-tag {
+    padding: 2px 12px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .grade-tag:hover, .subject-tag:hover { color: #004fff; }
+  .grade-tag.active {
+    color: #004fff;
+  }
+  .subject-tag.active {
+    color: #004fff;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 10px;
+  }
+
+  .modify-btn {
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #333;
+    padding: 4px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+  .modify-btn:hover { border-color: #004fff; color: #004fff; }
+
+  .time-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .time-table th, .time-table td {
+    padding: 10px 0;
+    text-align: left;
+    vertical-align: middle;
+  }
+  .time-table th {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+  }
+  .time-table td:first-child {
+    width: 80px;
+    font-size: 13px;
+    color: #333;
+  }
+  .time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .time-slot {
+    width: 48px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    background: #fff;
+    user-select: none;
+  }
+  .time-slot.selected {
+    border-color: #004fff;
+    color: #004fff;
+    background: #f0f5ff;
+  }
+  .time-slot:hover { border-color: #004fff; }
+
+  .answer-rule {
+    margin-top: 24px;
+  }
+  .answer-rule .section-title {
+    margin-bottom: 12px;
+  }
+  .radio-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .radio-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+  }
+  .radio-item input[type="radio"] {
+    accent-color: #004fff;
+    width: 15px;
+    height: 15px;
+  }
+  .radio-item .input-inline {
+    width: 60px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    padding: 0 8px;
+    margin: 0 4px;
+  }
+  .radio-item .input-inline:focus {
+    outline: none;
+    border-color: #004fff;
+    box-shadow: 0 0 0 2px rgba(0,79,255,0.1);
+  }
+
+  /* 重复规则设置 */
+  .rule-radio-group {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 16px;
+  }
+  .rule-radio-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+  }
+  .rule-radio-item input[type="radio"] {
+    accent-color: #004fff;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  .rule-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+  }
+  .rule-desc .highlight {
+    color: #004fff;
+    font-weight: 600;
+  }
+  .day-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .day-input {
+    width: 72px;
+    height: 32px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    padding: 0 8px;
+    color: #333;
+  }
+  .day-input:focus {
+    outline: none;
+    border-color: #004fff;
+    box-shadow: 0 0 0 2px rgba(0,79,255,0.1);
+  }
+  .day-input-label {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .help-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #004fff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,79,255,0.3);
+    z-index: 200;
+  }
+
+  .save-bar {
+    padding: 16px 0;
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+  }
+  .btn-primary {
+    background: #004fff;
+    color: #fff;
+    border: none;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: #003bcc; }
+  .btn-default {
+    background: #fff;
+    color: #333;
+    border: 1px solid #d9d9d9;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-default:hover { border-color: #004fff; color: #004fff; }
+
+  /* ===== Teacher View ===== */
+  .filter-bar {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .filter-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-label {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+  }
+  .filter-select {
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    padding: 0 24px 0 8px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%23999'/></svg>") no-repeat right 8px center;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    min-width: 130px;
+  }
+  .class-tag {
+    padding: 3px 10px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .class-tag:hover { color: #004fff; }
+  .class-tag.active {
+    color: #004fff;
+    background: #e6f0ff;
+  }
+  .date-range {
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+  }
+  .search-box {
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 0 30px 0 10px;
+    width: 230px;
+    background: #fff;
+    position: relative;
+  }
+  .search-wrap { position: relative; }
+  .search-wrap i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 12px;
+  }
+
+  .work-tabs {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid #e8e8e8;
+    position: relative;
+  }
+  .work-tab {
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+  }
+  .work-tab:hover { color: #004fff; }
+  .work-tab.active { color: #004fff; font-weight: 500; }
+  .work-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: #004fff;
+  }
+  .work-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .make-card-btn {
+    background: #004fff;
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .make-card-btn:hover { background: #003bcc; }
+  .setting-icon-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .setting-icon-btn:hover { border-color: #004fff; color: #004fff; }
+
+  .work-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .work-table th {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 12px;
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .work-table td {
+    font-size: 13px;
+    color: #333;
+    padding: 12px;
+    border-bottom: 1px solid #f5f5f5;
+    vertical-align: middle;
+  }
+  .work-table tr:hover td { background: #fafcff; }
+  .name-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 0 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    line-height: 18px;
+    vertical-align: middle;
+  }
+  .tag-blue { color: #004fff; background: #e6f0ff; }
+  .tag-orange { color: #fa8c16; background: #fff3e6; }
+  .num-red { color: #f5222d; }
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #bbb;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .op-link {
+    color: #004fff;
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 13px;
+  }
+  .op-link:hover { text-decoration: underline; }
+  .time-cell { color: #666; }
+  .end-text { color: #999; margin-right: 6px; }
+
+  /* Modal */
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .modal {
+    width: 560px;
+    max-width: 92vw;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .modal-close {
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .modal-close:hover { color: #666; }
+  .modal-body {
+    padding: 24px 20px;
+  }
+  .modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; }
+    .top-nav { display: none; }
+    .time-slots { gap: 2px; }
+    .time-slot { width: 40px; height: 24px; font-size: 10px; }
+    .content-area { padding: 12px; }
+  }
+</style>
 </head>
-<body class="bg-gray-100 h-screen flex flex-col overflow-hidden">
-    <header class="bg-white border-b border-gray-200 h-14 flex items-center justify-between px-6 flex-none z-20">
-        <div class="flex items-center gap-4">
-            <h1 class="font-bold text-gray-900 text-lg">未命名项目</h1>
-            <span class="text-xs text-gray-400 bg-indigo-50 text-indigo-600 px-2 py-1 rounded">研发预览版</span>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 text-sm text-gray-500">
-                <span>视图:</span>
-                <select id="previewType" class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                    <option value="auto">自动</option>
-                    <option value="mobile">移动端</option>
-                    <option value="web">网页端</option>
-                </select>
-            </div>
-        </div>
-    </header>
+<body>
 
-    <div class="flex-1 flex overflow-hidden">
-        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-            <div class="p-4 border-b border-gray-100">
-                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">页面导航</h3>
-            </div>
-            <div id="flowchartEntry" class="p-3 border-b border-gray-100 cursor-pointer hover:bg-indigo-50 transition-colors">
-                <div class="flex items-center gap-3 text-indigo-600">
-                    <i class="fas fa-project-diagram"></i>
-                    <span class="font-medium">页面流程图</span>
-                </div>
-            </div>
-            <div id="pageList" class="flex-1 overflow-y-auto scrollbar-thin"></div>
-        </aside>
+<div id="app">
+  <!-- Top Header -->
+  <div class="top-header">
+    <div style="display:flex;align-items:center;">
+      <span class="logo">演示学校</span>
+      <span class="school-name">进步中学</span>
+    </div>
+    <div class="top-nav">
+      <a href="#" :class="{ active: viewRole === 'admin' }">数据中心</a>
+      <a href="#">学情分析</a>
+      <a href="#">教务管理</a>
+      <a href="#">考试</a>
+      <a href="#">校级管理</a>
+      <a href="#">数据大屏</a>
+      <a href="#" :class="{ active: viewRole === 'teacher' }">作业</a>
+      <a href="#">错题本</a>
+      <a href="#">试卷库</a>
+      <a href="#" style="font-size:16px;"><i class="fas fa-th"></i></a>
+    </div>
+    <div style="display:flex;align-items:center;">
+      <div class="view-toggle">
+        <button :class="{ active: viewRole === 'admin' }" @click="viewRole = 'admin'">管理员</button>
+        <button :class="{ active: viewRole === 'teacher' }" @click="viewRole = 'teacher'">教师</button>
+      </div>
+      <div class="user-info">
+        <div style="width:28px;height:28px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="font-size:12px;color:#999;"></i></div>
+        <span>jbgz001 <i class="fas fa-chevron-down" style="font-size:10px;margin-left:2px;"></i></span>
+      </div>
+    </div>
+  </div>
 
-        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-200">
-            <div id="flowchartView" class="flex-1 bg-white m-4 rounded-xl shadow-sm overflow-auto hidden">
-                <div class="p-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fas fa-project-diagram text-indigo-500"></i>
-                        页面流程图
-                    </h2>
-                    <div id="flowchartContainer" class="min-h-[400px]"></div>
-                </div>
-            </div>
-            <div id="previewContainer" class="flex-1 flex items-center justify-center p-4">
-                <div id="previewWrapper" class="bg-white overflow-hidden preview-frame-mobile">
-                    <iframe id="previewFrame" class="w-full h-full border-0" src="prototype/index.html"></iframe>
-                </div>
-            </div>
-        </main>
-
-        <aside id="prdSidebar" class="prd-sidebar expanded bg-white border-l border-gray-200 flex flex-col">
-            <button id="prdToggle" 
-                class="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-l-lg flex items-center justify-center cursor-pointer z-20 shadow-lg"
-                style="transform: translateX(-100%) translateY(-50%);">
-                <i class="fas fa-chevron-right text-xs"></i>
-            </button>
-            <div id="prdCollapsedLabel" class="flex-1 items-center justify-center cursor-pointer hover:bg-gray-50 hidden">
-                <span class="text-gray-500 text-sm font-medium" style="writing-mode: vertical-lr; transform: rotate(180deg);">PRD 文档</span>
-            </div>
-            <div id="prdContent" class="flex-1 flex flex-col overflow-hidden">
-                <div class="p-4 border-b border-gray-100 flex items-center justify-between flex-none">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-file-alt text-indigo-500"></i>
-                        <span class="font-semibold text-gray-800">PRD 文档</span>
-                    </div>
-                    <div id="prdPageName" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">home</div>
-                </div>
-                <div id="prdPreview" class="flex-1 overflow-y-auto p-4">
-                    <div id="prdPreviewContent" class="markdown-body text-sm"></div>
-                </div>
-            </div>
-        </aside>
+  <!-- ============ 管理员视角 ============ -->
+  <template v-if="viewRole === 'admin'">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">扫描管理</div>
+        <a class="sidebar-item active">扫描管理</a>
+        <a class="sidebar-item">学科扫描量统计</a>
+        <a class="sidebar-item">作业批改报表</a>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">在线作业统计</div>
+        <a class="sidebar-item">布置记录</a>
+        <a class="sidebar-item">提交明细</a>
+        <a class="sidebar-item">数据汇总</a>
+      </div>
     </div>
 
-    <script>
-        // ========== 内联数据 ==========
-        const PAGES = [];
-        const PRD_DATA = {"home": "# 通用题卡序号重复规则设置 PRD\n\n## 一、背景与目标\n学生扫码提交题卡时，题卡序号可能被重复使用。当同一序号在不同时间被再次扫描时，系统需判断该题卡归属哪一份作业，避免误归属。\n本需求在原有\"扫码提交规则设置\"基础上，新增\"通用题卡序号重复规则\"的配置能力，并区分**管理员视角**与**教师视角**两种使用场景。\n\n## 二、角色与视角\n| 视角 | 入口 | 能力说明 |\n| --- | --- | --- |\n| 管理员 | 数据中心 → 扫描管理 → 通用题卡重复规则设置 | 全校统一配置，或下放给老师自行配置 |\n| 教师 | 作业列表页 → 制作作业答题卡旁的设置图标 | 在\"管理员下放\"的前提下，自行配置本人的重复规则 |\n\n页面提供右上角「管理员 / 教师」切换，用于演示两种视角。\n\n## 三、功能需求\n\n### 1. 管理员视角：通用题卡重复规则设置\n位置：作为\"扫描管理\"下的二级 Tab。\n\n#### 1.1 设置方式（一级选择）\n- **统一设置**（默认选中）：由管理员统一为全校配置重复规则，展开显示下方\"规则设置\"项。\n- **老师自行设置**：将配置权下放给老师。选中后隐藏规则项，仅显示说明文案：\n  > 由老师自主设置重复规则，默认，自定义时间，不生效。\n\n#### 1.2 规则设置（\"统一设置\"下展开）\n单选，三选一：\n1. **默认**（默认选中）\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **7 天**，则会提醒老师需要手动选择题卡归属的作业。\n2. **自定义时长**\n   - 提供天数输入框（范围 1–180，默认 7），失焦时校验并纠正越界值。\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **{自定义天数} 天**，则会提醒老师需要手动选择题卡归属的作业。\n3. **不生效**\n   - 文案：不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。\n\n底部提供「保存」「取消」按钮。\n\n### 2. 教师视角：作业列表页\n#### 2.1 设置图标 → 弹窗：通用题卡序号重复规则设置\n点击齿轮图标弹出弹窗，单选三选一：\n1. **默认**（默认选中）\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **7 天**，则进行提醒，需手动设置归属的作业。\n2. **自定义时间**\n   - 提供天数输入框（范围 1–180，默认 7）。\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **{自定义天数} 天**，则进行提醒，需手动设置归属的作业。\n3. **不生效**\n   - 文案：不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。\n\n弹窗底部提供「取消」「保存」按钮，点击遮罩或关闭图标可关闭。\n\n## 四、交互与规则说明\n1. 教师视角的设置仅在管理员选择\"老师自行设置\"时可用（演示中默认开放）。\n2. 自定义天数输入校验：小于 1 取 1，大于 180 取 180，空值或非法值回退为默认 7。\n3. 三种规则互斥单选，切换时实时刷新对应说明文案。\n4. 默认值：设置方式=统一设置；规则=默认；自定义天数=7。\n\n"};
-        const TRANSITIONS = [];
-        const MODALS = [{"name": "showRuleModal", "label": "Rule弹窗"}, {"name": "RuleModal", "label": "Rule弹窗"}];
-        const MERMAID_CODE = `flowchart TD`;
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Sub Tabs -->
+      <div class="sub-tabs">
+        <div class="sub-tab">扫描题卡管理</div>
+        <div class="sub-tab">学生扫码提交题卡管理</div>
+        <div class="sub-tab" :class="{ active: activeMainTab === 'scanRule' }" @click="activeMainTab = 'scanRule'">扫码提交规则设置</div>
+        <div class="sub-tab" :class="{ active: activeMainTab === 'duplicateRule' }" @click="activeMainTab = 'duplicateRule'">通用题卡重复规则设置</div>
+      </div>
 
-        // ========== 状态 ==========
-        let currentPage = PAGES.length > 0 ? PAGES[0].name : 'home';
-        let prdExpanded = true;
+      <!-- 扫码提交规则设置 content -->
+      <div class="content-area" v-show="activeMainTab === 'scanRule'">
+        <div class="grade-row">
+          <span class="grade-label">年级：</span>
+          <span class="grade-tag" :class="{ active: activeGrade === '高一' }" @click="activeGrade = '高一'">高一</span>
+          <span class="grade-tag" :class="{ active: activeGrade === '高二' }" @click="activeGrade = '高二'">高二</span>
+        </div>
 
-        const $ = id => document.getElementById(id);
-        const previewFrame = $('previewFrame');
-        const previewWrapper = $('previewWrapper');
+        <div class="subject-row">
+          <span class="subject-label">学科：</span>
+          <span class="subject-tag" v-for="s in subjects" :key="s" :class="{ active: activeSubject === s }" @click="activeSubject = s">{{ s }}</span>
+        </div>
 
-        document.addEventListener('DOMContentLoaded', () => {
-            renderPageList();
-            showPrd(currentPage);
-            
-            previewFrame.onload = () => {
-                detectPreviewType();
-                startPageDetection();
-            };
-            
-            $('prdToggle').onclick = togglePrdSidebar;
-            $('prdCollapsedLabel').onclick = togglePrdSidebar;
-            $('flowchartEntry').onclick = showFlowchart;
-            $('previewType').onchange = (e) => {
-                if (e.target.value === 'mobile') setPreviewMode('mobile');
-                else if (e.target.value === 'web') setPreviewMode('web');
-                else detectPreviewType();
-            };
-            
-            mermaid.initialize({ startOnLoad: false, theme: 'default' });
-        });
+        <div class="section-title">提交时间设置</div>
+        <div class="section-desc">学生仅可在已设置的时间内扫码提交作业</div>
+        <button class="modify-btn">修 改</button>
 
-        function detectPreviewType() {
-            try {
-                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-                const w = Math.max(doc.body.scrollWidth, doc.body.offsetWidth);
-                setPreviewMode(w <= 500 ? 'mobile' : 'web');
-            } catch (e) { setPreviewMode('mobile'); }
-        }
-
-        function setPreviewMode(mode) {
-            previewWrapper.className = mode === 'mobile' 
-                ? 'bg-white overflow-hidden preview-frame-mobile' 
-                : 'bg-white overflow-hidden preview-frame-web';
-        }
-
-        function togglePrdSidebar() {
-            prdExpanded = !prdExpanded;
-            const sidebar = $('prdSidebar');
-            const label = $('prdCollapsedLabel');
-            const content = $('prdContent');
-            const toggle = $('prdToggle');
-            
-            if (prdExpanded) {
-                sidebar.classList.remove('collapsed'); sidebar.classList.add('expanded');
-                label.classList.add('hidden'); content.classList.remove('hidden');
-                toggle.innerHTML = '<i class="fas fa-chevron-right text-xs"></i>';
-            } else {
-                sidebar.classList.remove('expanded'); sidebar.classList.add('collapsed');
-                label.classList.remove('hidden'); label.classList.add('flex'); content.classList.add('hidden');
-                toggle.innerHTML = '<i class="fas fa-chevron-left text-xs"></i>';
-            }
-        }
-
-        function renderPageList() {
-            const list = $('pageList');
-            if (PAGES.length === 0) {
-                list.innerHTML = '<div class="p-4 text-center text-gray-400 text-sm">无页面</div>';
-                return;
-            }
-            list.innerHTML = PAGES.map(p => `
-                <div class="page-item px-4 py-3 cursor-pointer ${p.name === currentPage ? 'active' : ''}"
-                     onclick="navigateToPage('${p.name}')">
-                    <div class="flex items-center gap-3">
-                        <i class="fas fa-file text-gray-400"></i>
-                        <div>
-                            <div class="font-medium text-gray-800">${p.label}</div>
-                            <div class="text-xs text-gray-400">${p.name}</div>
-                        </div>
-                        ${PRD_DATA[p.name] ? '<i class="fas fa-book text-indigo-400 ml-auto" title="有PRD"></i>' : ''}
-                    </div>
+        <table class="time-table">
+          <thead>
+            <tr>
+              <th>星期</th>
+              <th>可扫码提交时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(day, idx) in weekdays" :key="day">
+              <td>{{ day }}</td>
+              <td>
+                <div class="time-slots">
+                  <div class="time-slot" v-for="h in hours" :key="h" :class="{ selected: isTimeSelected(idx, h) }" @click="toggleTime(idx, h)">{{ h }}:00</div>
                 </div>
-            `).join('');
-        }
+              </td>
+            </tr>
+          </tbody>
+        </table>
 
-        function navigateToPage(pageName) {
-            console.log('[Viewer] 切换到页面:', pageName);
-            $('flowchartView').classList.add('hidden');
-            $('previewContainer').classList.remove('hidden');
-            
-            // 使用 postMessage 发送导航请求 (file:// 协议下唯一可行的方式)
-            try {
-                const w = previewFrame.contentWindow;
-                w.postMessage({ type: 'navigateTo', page: pageName }, '*');
-                console.log('[Viewer] 已发送 postMessage');
-            } catch (e) {
-                console.log('[Viewer] postMessage 失败:', e);
+        <div class="answer-rule">
+          <div class="section-title">答案公布规则</div>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="answer" value="immediate" v-model="answerRule">
+              <span>提交后立即可查看答案</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="answer" value="delay" v-model="answerRule">
+              <span>提交</span>
+              <input type="text" class="input-inline" v-model="answerDelayHours" :disabled="answerRule !== 'delay'">
+              <span>小时后可查看答案</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="answer" value="percent" v-model="answerRule">
+              <span>班级提交率 ≥</span>
+              <input type="text" class="input-inline" v-model="answerPercent" :disabled="answerRule !== 'percent'">
+              <span>%可查看答案</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通用题卡重复规则设置 content -->
+      <div class="content-area" v-show="activeMainTab === 'duplicateRule'">
+        <!-- 设置方式 -->
+        <div class="section-title" style="margin-top: 4px; margin-bottom: 16px;">设置方式</div>
+        <div class="rule-radio-group">
+          <label class="rule-radio-item">
+            <input type="radio" name="settingMode" value="unified" v-model="settingMode">
+            <span>统一设置</span>
+          </label>
+          <label class="rule-radio-item">
+            <input type="radio" name="settingMode" value="teacher" v-model="settingMode">
+            <span>老师自行设置</span>
+          </label>
+        </div>
+
+        <!-- 统一设置 -->
+        <div v-if="settingMode === 'unified'">
+          <div class="section-title" style="margin-top: 24px; margin-bottom: 16px;">规则设置</div>
+
+          <div class="rule-radio-group">
+            <label class="rule-radio-item">
+              <input type="radio" name="dupRule" value="default" v-model="dupRule">
+              <span>默认</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="dupRule" value="custom" v-model="dupRule">
+              <span>自定义时长</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="dupRule" value="disabled" v-model="dupRule">
+              <span>不生效</span>
+            </label>
+          </div>
+
+          <div v-if="dupRule === 'default'" class="rule-desc">
+            扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> 7 天</span>，则会提醒老师需要手动选择题卡归属的作业。
+          </div>
+
+          <div v-if="dupRule === 'custom'">
+            <div class="day-input-wrapper">
+              <span class="day-input-label">自定义天数：</span>
+              <input type="number" class="day-input" v-model.number="customDays" :min="1" :max="180" @blur="clampDays">
+              <span class="day-input-label">天</span>
+            </div>
+            <div class="rule-desc">
+              扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> {{ customDays }} 天</span>，则会提醒老师需要手动选择题卡归属的作业。
+            </div>
+          </div>
+
+          <div v-if="dupRule === 'disabled'" class="rule-desc">
+            不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。
+          </div>
+        </div>
+
+        <!-- 老师自行设置 -->
+        <div v-if="settingMode === 'teacher'">
+          <div class="rule-desc" style="margin-top: 24px;">
+            由老师自主设置重复规则，默认，自定义时间，不生效。
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn-primary">保 存</button>
+          <button class="btn-default">取 消</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ============ 教师视角 ============ -->
+  <template v-if="viewRole === 'teacher'">
+    <div class="main-content full">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-row">
+          <span class="filter-label">年级选择：</span>
+          <select class="filter-select">
+            <option>2024-2025学年 ...</option>
+            <option>2025-2026学年</option>
+          </select>
+          <span class="grade-tag active">高一</span>
+          <span class="grade-tag">高二</span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">任教班级：</span>
+          <span class="class-tag" v-for="c in classes" :key="c" :class="{ active: activeClass === c }" @click="activeClass = c">{{ c }}</span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">高级选项：</span>
+          <select class="filter-select"><option>全部学科</option></select>
+          <select class="filter-select"><option>全部模块</option></select>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+            <div class="date-range">
+              <i class="far fa-calendar" style="color:#999;"></i>
+              <span>2025-12-08</span>
+              <span style="color:#ccc;">~</span>
+              <span>2026-06-08</span>
+            </div>
+            <div class="search-wrap">
+              <input class="search-box" placeholder="请输入作业名称或编号">
+              <i class="fas fa-search"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Tabs -->
+      <div class="work-tabs">
+        <div class="work-tab" v-for="t in workTabs" :key="t" :class="{ active: activeWorkTab === t }" @click="activeWorkTab = t">{{ t }}</div>
+        <div class="work-actions">
+          <button class="make-card-btn">制作作业答题卡</button>
+          <div class="setting-icon-btn" title="通用题卡序号重复规则设置" @click="showRuleModal = true">
+            <i class="fas fa-cog"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Table -->
+      <div style="padding: 0 16px;">
+        <table class="work-table">
+          <thead>
+            <tr>
+              <th style="width:70px;">科目</th>
+              <th>名称</th>
+              <th style="width:150px;">班级</th>
+              <th style="width:80px;">已交</th>
+              <th style="width:80px;">未交</th>
+              <th style="width:200px;">时间</th>
+              <th style="width:200px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, i) in workRows" :key="i">
+              <td>{{ row.subject }}</td>
+              <td>
+                {{ row.name }}
+                <span v-if="row.tag" class="name-tag" :class="row.tagClass">{{ row.tag }}</span>
+              </td>
+              <td>{{ row.class }}</td>
+              <td>{{ row.submitted }}</td>
+              <td><span class="num-red">{{ row.unsubmitted }}</span></td>
+              <td class="time-cell">
+                <span v-if="row.ended" class="end-text"><span class="status-dot"></span>已结束</span>{{ row.time }}
+              </td>
+              <td>
+                <span class="op-link" v-for="op in row.ops" :key="op">{{ op }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 通用题卡序号重复规则设置 Modal -->
+    <div class="modal-mask" v-if="showRuleModal" @click.self="showRuleModal = false">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">通用题卡序号重复规则设置</span>
+          <span class="modal-close" @click="showRuleModal = false"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="modal-body">
+          <div class="rule-radio-group">
+            <label class="rule-radio-item">
+              <input type="radio" name="tDupRule" value="default" v-model="teacherDupRule">
+              <span>默认</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="tDupRule" value="custom" v-model="teacherDupRule">
+              <span>自定义时间</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="tDupRule" value="disabled" v-model="teacherDupRule">
+              <span>不生效</span>
+            </label>
+          </div>
+
+          <div v-if="teacherDupRule === 'default'" class="rule-desc">
+            扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> 7 天</span>，则进行提醒，需手动设置归属的作业。
+          </div>
+
+          <div v-if="teacherDupRule === 'custom'">
+            <div class="day-input-wrapper">
+              <span class="day-input-label">自定义天数：</span>
+              <input type="number" class="day-input" v-model.number="teacherCustomDays" :min="1" :max="180" @blur="clampTeacherDays">
+              <span class="day-input-label">天</span>
+            </div>
+            <div class="rule-desc">
+              扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> {{ teacherCustomDays }} 天</span>，则进行提醒，需手动设置归属的作业。
+            </div>
+          </div>
+
+          <div v-if="teacherDupRule === 'disabled'" class="rule-desc">
+            不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-default" @click="showRuleModal = false">取 消</button>
+          <button class="btn-primary" @click="showRuleModal = false">保 存</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Help Float -->
+  <div class="help-float">?</div>
+</div>
+
+<script>
+const { createApp, ref, reactive } = Vue;
+
+createApp({
+  setup() {
+    // 视角切换
+    const viewRole = ref('teacher');
+
+    // ===== 管理员视角 =====
+    const activeMainTab = ref('duplicateRule');
+    const activeGrade = ref('高一');
+    const activeSubject = ref('语文');
+    const subjects = ref(['语文', '数学', '英语', '物理', '化学', '生物', '政治', '历史', '地理', '通用技术', '信息技术', '体育']);
+
+    const weekdays = ref(['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']);
+    const hours = ref(Array.from({ length: 24 }, (_, i) => i));
+
+    const selectedTimes = reactive({});
+    weekdays.value.forEach((_, idx) => {
+      selectedTimes[idx] = new Set(Array.from({ length: 24 }, (_, i) => i));
+    });
+    selectedTimes[2].delete(7);
+    selectedTimes[4].delete(15);
+    selectedTimes[4].delete(16);
+
+    const isTimeSelected = (dayIdx, hour) => selectedTimes[dayIdx] && selectedTimes[dayIdx].has(hour);
+    const toggleTime = (dayIdx, hour) => {
+      if (!selectedTimes[dayIdx]) selectedTimes[dayIdx] = new Set();
+      if (selectedTimes[dayIdx].has(hour)) selectedTimes[dayIdx].delete(hour);
+      else selectedTimes[dayIdx].add(hour);
+    };
+
+    const answerRule = ref('immediate');
+    const answerDelayHours = ref('');
+    const answerPercent = ref('');
+
+    const settingMode = ref('unified');
+    const dupRule = ref('default');
+    const customDays = ref(7);
+    const clampDays = () => {
+      if (customDays.value < 1) customDays.value = 1;
+      if (customDays.value > 180) customDays.value = 180;
+      if (!customDays.value || isNaN(customDays.value)) customDays.value = 7;
+    };
+
+    // ===== 教师视角 =====
+    const classes = ref(['全部班级', '发发', '日语班', '这个合并', '金钰人生', '一班-勿动删删', '2班', '6班-改', '李腾灯预校', '韩语', '德语班级', '物理班', '韩语班级', '哪个报你告诉', '阿拉伯语班级', '法语班级', '5班', '66班', '韩语123']);
+    const activeClass = ref('全部班级');
+    const workTabs = ref(['全部', '图书作业', '校本作业', '校本学案', '自典题卡', '在线作业', '通用题卡']);
+    const activeWorkTab = ref('全部');
+
+    const workRows = ref([
+      { subject: '数学', name: '手动编', tag: '4题', tagClass: 'tag-blue', class: '一班-勿动删删', submitted: '1 | 1', unsubmitted: '13 | 13', time: '2026-06-08 11:22', ended: false, ops: ['批阅', '查看详情', '电子作业本'] },
+      { subject: '数学', name: '手动阿萨法', tag: '', tagClass: '', class: '一班-勿动删删', submitted: '1', unsubmitted: '13', time: '2026-06-08 16:27', ended: false, ops: ['回阅', '查看详情', '电子作业本'] },
+      { subject: '物理', name: '2026年06月05日物理作业_副本', tag: '', tagClass: '', class: '一班-勿动删删', submitted: '1', unsubmitted: '12', time: '2026-06-08 16:24', ended: false, ops: ['回阅', '查看详情', '电子作业本'] },
+      { subject: '物理', name: '2026年06月05日物理作业_副本', tag: '', tagClass: '', class: '物理班', submitted: '1', unsubmitted: '1', time: '2026-06-08 16:23', ended: false, ops: ['回阅', '查看详情', '电子作业本'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '66班', submitted: '0', unsubmitted: '1', time: '2026-06-05 23:59', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '5班', submitted: '0', unsubmitted: '1', time: '2026-06-05 23:59', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '2班', submitted: '0', unsubmitted: '63', time: '2026-06-06 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '一班-勿动删删', submitted: '0', unsubmitted: '14', time: '2026-06-06 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '日语班', submitted: '0', unsubmitted: '4', time: '2026-06-06 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月27日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '6班-改', submitted: '0', unsubmitted: '59', time: '2026-06-08 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月27日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '66班', submitted: '0', unsubmitted: '63', time: '2026-06-08 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月27日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '一班-勿动删删', submitted: '0', unsubmitted: '14', time: '2026-06-08 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+    ]);
+
+    const showRuleModal = ref(false);
+    const teacherDupRule = ref('default');
+    const teacherCustomDays = ref(7);
+    const clampTeacherDays = () => {
+      if (teacherCustomDays.value < 1) teacherCustomDays.value = 1;
+      if (teacherCustomDays.value > 180) teacherCustomDays.value = 180;
+      if (!teacherCustomDays.value || isNaN(teacherCustomDays.value)) teacherCustomDays.value = 7;
+    };
+
+    return {
+      viewRole,
+      activeMainTab, activeGrade, activeSubject, subjects,
+      weekdays, hours, isTimeSelected, toggleTime,
+      answerRule, answerDelayHours, answerPercent,
+      settingMode, dupRule, customDays, clampDays,
+      classes, activeClass, workTabs, activeWorkTab, workRows,
+      showRuleModal, teacherDupRule, teacherCustomDays, clampTeacherDays,
+    };
+  }
+}).mount('#app');
+</script>
+
+<!-- 页面导航监听器 (由原型生成器自动注入) -->
+<script>
+(function() {
+    var checkInterval = setInterval(function() {
+        if (window.currentPage) {
+            clearInterval(checkInterval);
+            console.log('[原型] currentPage 已就绪');
+        }
+    }, 100);
+
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'navigateTo') {
+            var pageName = event.data.page;
+            console.log('[原型] 收到页面切换请求:', pageName);
+            if (window.currentPage && window.currentPage.value !== undefined) {
+                window.currentPage.value = pageName;
+                console.log('[原型] 已切换到页面:', pageName);
             }
-            
-            currentPage = pageName;
-            renderPageList();
-            showPrd(pageName);
-        }
-
-        function showPrd(pageName) {
-            $('prdPageName').textContent = pageName;
-            const content = PRD_DATA[pageName];
-            $('prdPreviewContent').innerHTML = content 
-                ? marked.parse(content) 
-                : '<p class="text-gray-400">此页面暂无 PRD 文档</p>';
-        }
-
-        async function showFlowchart() {
-            $('flowchartView').classList.remove('hidden');
-            $('previewContainer').classList.add('hidden');
-            
-            const container = $('flowchartContainer');
-            try {
-                const { svg } = await mermaid.render('flowchart-svg', MERMAID_CODE);
-                container.innerHTML = svg;
-                
-                if (MODALS.length > 0) {
-                    container.insertAdjacentHTML('beforeend', `
-                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                            <h3 class="font-semibold text-gray-700 mb-3">
-                                <i class="fas fa-window-restore text-indigo-500 mr-2"></i>弹窗/交互组件
-                            </h3>
-                            <div class="grid grid-cols-2 gap-2">
-                                ${MODALS.map(m => `<div class="flex items-center gap-2 text-sm text-gray-600">
-                                    <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>${m.label}
-                                </div>`).join('')}
-                            </div>
-                        </div>
-                    `);
-                }
-                
-                if (TRANSITIONS.length > 0) {
-                    container.insertAdjacentHTML('beforeend', `
-                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
-                            <h3 class="font-semibold text-gray-700 mb-3">
-                                <i class="fas fa-exchange-alt text-blue-500 mr-2"></i>页面跳转 (${TRANSITIONS.length}个)
-                            </h3>
-                            <div class="space-y-1 text-sm">
-                                ${TRANSITIONS.map(t => `<div class="flex items-center gap-2 text-gray-600">
-                                    <span class="font-medium">${t.from}</span>
-                                    <i class="fas fa-arrow-right text-gray-400"></i>
-                                    <span class="font-medium">${t.to}</span>
-                                </div>`).join('')}
-                            </div>
-                        </div>
-                    `);
-                }
-            } catch (e) {
-                container.innerHTML = '<div class="text-red-500">流程图渲染失败</div><pre class="bg-gray-100 p-4 mt-4 rounded text-sm">' + MERMAID_CODE + '</pre>';
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'pageChange', page: pageName }, '*');
             }
         }
+    });
 
-        function startPageDetection() {
-            setInterval(() => {
-                try {
-                    const w = previewFrame.contentWindow;
-                    if (w && w.currentPage) {
-                        const p = w.currentPage.value || w.currentPage;
-                        if (p && typeof p === 'string' && p !== currentPage) {
-                            currentPage = p;
-                            renderPageList();
-                            showPrd(p);
-                        }
-                    }
-                } catch (e) {}
-            }, 1000);
-            
-            window.addEventListener('message', (e) => {
-                if (e.data && e.data.type === 'pageChange' && e.data.page !== currentPage) {
-                    currentPage = e.data.page;
-                    renderPageList();
-                    showPrd(e.data.page);
-                }
-            });
-        }
-    </script>
+    if (window.parent !== window) {
+        setInterval(function() {
+            if (window.currentPage && window.currentPage.value) {
+                window.parent.postMessage({ type: 'pageChange', page: window.currentPage.value }, '*');
+            }
+        }, 500);
+    }
+})();
+</script>
+
 </body>
 </html>
