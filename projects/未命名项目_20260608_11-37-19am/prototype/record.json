@@ -1,0 +1,33 @@
+{
+  "global": {
+    "primaryColor": "#004fff",
+    "secondaryColor": "#10b981",
+    "backgroundMode": "light",
+    "componentStyle": "Ant Design",
+    "designSystemId": "",
+    "designSystemName": "默认风格",
+    "skillId": "web-prototype",
+    "skillName": "web-prototype"
+  },
+  "pages": [
+    {
+      "name": "页面1",
+      "layout": "完整还原下这个页面，然后在扫码提交规则设置后方，增加一个tab，名称是通用题卡重复规则设置，选中\n\n页面显示：\n\n规则设置：默认，自定义时长，不生效，默认选中“默认”\n1. 选中默认，下方显示解释文案：扫描题卡的序号之前已被使用过，且时间间隔超过7天，则会提醒老师需要手动选择题卡归属的作业。\n其中天数标记高亮\n2.选中自定义时长，下方显示可输入的天数，默认7天，可以调整数字，最少1天，最多可以设置180天。\n解释文案：扫描题卡的序号之前已被使用过，且时间间隔超过x天，则会提醒老师需要手动选择题卡归属的作业。    其中x为设置的天数，也需要高亮\n\n3.选中不生效\n解释文案：不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。\n\n\n\n",
+      "features": "",
+      "interaction": "",
+      "similarity": "pixel",
+      "images": [
+        "ref_1.png"
+      ],
+      "referenceImages": [
+        "ref_1.png"
+      ],
+      "pptImages": []
+    }
+  ],
+  "designSystemId": "",
+  "skillId": "web-prototype",
+  "status": "completed",
+  "createdAt": "2026-06-08 11:37:19",
+  "sourceProjectId": null
+}
