@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>未命名项目 - 原型预览</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .scrollbar-thin::-webkit-scrollbar { width: 6px; }
+        .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+        .scrollbar-thin::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .prd-sidebar { transition: width 0.3s ease; position: relative; }
+        .prd-sidebar.collapsed { width: 48px; }
+        .prd-sidebar.expanded { width: 420px; }
+        .markdown-body h1 { font-size: 1.5rem; font-weight: 700; margin: 1rem 0 0.5rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .markdown-body h2 { font-size: 1.25rem; font-weight: 600; margin: 1rem 0 0.5rem; }
+        .markdown-body h3 { font-size: 1.1rem; font-weight: 600; margin: 0.75rem 0 0.5rem; }
+        .markdown-body p { margin: 0.5rem 0; line-height: 1.6; }
+        .markdown-body ul { margin: 0.5rem 0; padding-left: 1.5rem; list-style-type: disc; }
+        .markdown-body ol { margin: 0.5rem 0; padding-left: 1.5rem; list-style-type: decimal; }
+        .markdown-body li { margin: 0.25rem 0; display: list-item; }
+        .markdown-body code { background: #f3f4f6; padding: 0.125rem 0.375rem; border-radius: 4px; font-size: 0.875rem; }
+        .markdown-body pre { background: #1f2937; color: #e5e7eb; padding: 1rem; border-radius: 8px; overflow-x: auto; margin: 0.75rem 0; }
+        .markdown-body pre code { background: transparent; padding: 0; color: inherit; }
+        .markdown-body blockquote { border-left: 4px solid #6366f1; padding-left: 1rem; margin: 0.75rem 0; color: #6b7280; }
+        .markdown-body table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+        .markdown-body th, .markdown-body td { border: 1px solid #e5e7eb; padding: 0.5rem; text-align: left; }
+        .markdown-body th { background: #f9fafb; font-weight: 600; }
+        .page-item { transition: all 0.2s ease; }
+        .page-item:hover { background: #f3f4f6; }
+        .page-item.active { background: #eef2ff; border-left: 3px solid #6366f1; }
+        .preview-frame-mobile { width: 390px; height: 844px; border-radius: 40px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
+        .preview-frame-web { width: 100%; height: 100%; max-width: 1200px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col overflow-hidden">
+    <header class="bg-white border-b border-gray-200 h-14 flex items-center justify-between px-6 flex-none z-20">
+        <div class="flex items-center gap-4">
+            <h1 class="font-bold text-gray-900 text-lg">未命名项目</h1>
+            <span class="text-xs text-gray-400 bg-indigo-50 text-indigo-600 px-2 py-1 rounded">研发预览版</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2 text-sm text-gray-500">
+                <span>视图:</span>
+                <select id="previewType" class="border border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <option value="auto">自动</option>
+                    <option value="mobile">移动端</option>
+                    <option value="web">网页端</option>
+                </select>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex-1 flex overflow-hidden">
+        <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+            <div class="p-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">页面导航</h3>
+            </div>
+            <div id="flowchartEntry" class="p-3 border-b border-gray-100 cursor-pointer hover:bg-indigo-50 transition-colors">
+                <div class="flex items-center gap-3 text-indigo-600">
+                    <i class="fas fa-project-diagram"></i>
+                    <span class="font-medium">页面流程图</span>
+                </div>
+            </div>
+            <div id="pageList" class="flex-1 overflow-y-auto scrollbar-thin"></div>
+        </aside>
+
+        <main class="flex-1 flex flex-col min-w-0 overflow-hidden bg-gray-200">
+            <div id="flowchartView" class="flex-1 bg-white m-4 rounded-xl shadow-sm overflow-auto hidden">
+                <div class="p-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                        <i class="fas fa-project-diagram text-indigo-500"></i>
+                        页面流程图
+                    </h2>
+                    <div id="flowchartContainer" class="min-h-[400px]"></div>
+                </div>
+            </div>
+            <div id="previewContainer" class="flex-1 flex items-center justify-center p-4">
+                <div id="previewWrapper" class="bg-white overflow-hidden preview-frame-mobile">
+                    <iframe id="previewFrame" class="w-full h-full border-0" src="prototype/index.html"></iframe>
+                </div>
+            </div>
+        </main>
+
+        <aside id="prdSidebar" class="prd-sidebar expanded bg-white border-l border-gray-200 flex flex-col">
+            <button id="prdToggle" 
+                class="absolute left-0 top-1/2 -translate-y-1/2 w-6 h-20 bg-indigo-600 hover:bg-indigo-700 text-white rounded-l-lg flex items-center justify-center cursor-pointer z-20 shadow-lg"
+                style="transform: translateX(-100%) translateY(-50%);">
+                <i class="fas fa-chevron-right text-xs"></i>
+            </button>
+            <div id="prdCollapsedLabel" class="flex-1 items-center justify-center cursor-pointer hover:bg-gray-50 hidden">
+                <span class="text-gray-500 text-sm font-medium" style="writing-mode: vertical-lr; transform: rotate(180deg);">PRD 文档</span>
+            </div>
+            <div id="prdContent" class="flex-1 flex flex-col overflow-hidden">
+                <div class="p-4 border-b border-gray-100 flex items-center justify-between flex-none">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-file-alt text-indigo-500"></i>
+                        <span class="font-semibold text-gray-800">PRD 文档</span>
+                    </div>
+                    <div id="prdPageName" class="text-sm text-gray-500 bg-gray-100 px-2 py-1 rounded">home</div>
+                </div>
+                <div id="prdPreview" class="flex-1 overflow-y-auto p-4">
+                    <div id="prdPreviewContent" class="markdown-body text-sm"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // ========== 内联数据 ==========
+        const PAGES = [];
+        const PRD_DATA = {"home": "# 通用题卡序号重复规则设置 PRD\n\n## 一、背景与目标\n学生扫码提交题卡时，题卡序号可能被重复使用。当同一序号在不同时间被再次扫描时，系统需判断该题卡归属哪一份作业，避免误归属。\n本需求在原有\"扫码提交规则设置\"基础上，新增\"通用题卡序号重复规则\"的配置能力，并区分**管理员视角**与**教师视角**两种使用场景。\n\n## 二、角色与视角\n| 视角 | 入口 | 能力说明 |\n| --- | --- | --- |\n| 管理员 | 数据中心 → 扫描管理 → 通用题卡重复规则设置 | 全校统一配置，或下放给老师自行配置 |\n| 教师 | 作业列表页 → 制作作业答题卡旁的设置图标 | 在\"管理员下放\"的前提下，自行配置本人的重复规则 |\n\n页面提供右上角「管理员 / 教师」切换，用于演示两种视角。\n\n## 三、功能需求\n\n### 1. 管理员视角：通用题卡重复规则设置\n位置：作为\"扫描管理\"下的二级 Tab。\n\n#### 1.1 设置方式（一级选择）\n- **统一设置**（默认选中）：由管理员统一为全校配置重复规则，展开显示下方\"规则设置\"项。\n- **老师自行设置**：将配置权下放给老师。选中后隐藏规则项，仅显示说明文案：\n  > 由老师自主设置重复规则，默认，自定义时间，不生效。\n\n#### 1.2 规则设置（\"统一设置\"下展开）\n单选，三选一：\n1. **默认**（默认选中）\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **7 天**，则会提醒老师需要手动选择题卡归属的作业。\n2. **自定义时长**\n   - 提供天数输入框（范围 1–180，默认 7），失焦时校验并纠正越界值。\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **{自定义天数} 天**，则会提醒老师需要手动选择题卡归属的作业。\n3. **不生效**\n   - 文案：不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。\n\n底部提供「保存」「取消」按钮。\n\n### 2. 教师视角：作业列表页\n#### 2.1 设置图标 → 弹窗：通用题卡序号重复规则设置\n点击齿轮图标弹出弹窗，单选三选一：\n1. **默认**（默认选中）\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **7 天**，则进行提醒，需手动设置归属的作业。\n2. **自定义时间**\n   - 提供天数输入框（范围 1–180，默认 7）。\n   - 文案：扫描题卡的序号之前已被使用过，且时间间隔超过 **{自定义天数} 天**，则进行提醒，需手动设置归属的作业。\n3. **不生效**\n   - 文案：不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。\n\n弹窗底部提供「取消」「保存」按钮，点击遮罩或关闭图标可关闭。\n\n## 四、交互与规则说明\n1. 教师视角的设置仅在管理员选择\"老师自行设置\"时可用（演示中默认开放）。\n2. 自定义天数输入校验：小于 1 取 1，大于 180 取 180，空值或非法值回退为默认 7。\n3. 三种规则互斥单选，切换时实时刷新对应说明文案。\n4. 默认值：设置方式=统一设置；规则=默认；自定义天数=7。\n\n"};
+        const TRANSITIONS = [];
+        const MODALS = [{"name": "showRuleModal", "label": "Rule弹窗"}, {"name": "RuleModal", "label": "Rule弹窗"}];
+        const MERMAID_CODE = `flowchart TD`;
+
+        // ========== 状态 ==========
+        let currentPage = PAGES.length > 0 ? PAGES[0].name : 'home';
+        let prdExpanded = true;
+
+        const $ = id => document.getElementById(id);
+        const previewFrame = $('previewFrame');
+        const previewWrapper = $('previewWrapper');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPageList();
+            showPrd(currentPage);
+            
+            previewFrame.onload = () => {
+                detectPreviewType();
+                startPageDetection();
+            };
+            
+            $('prdToggle').onclick = togglePrdSidebar;
+            $('prdCollapsedLabel').onclick = togglePrdSidebar;
+            $('flowchartEntry').onclick = showFlowchart;
+            $('previewType').onchange = (e) => {
+                if (e.target.value === 'mobile') setPreviewMode('mobile');
+                else if (e.target.value === 'web') setPreviewMode('web');
+                else detectPreviewType();
+            };
+            
+            mermaid.initialize({ startOnLoad: false, theme: 'default' });
+        });
+
+        function detectPreviewType() {
+            try {
+                const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+                const w = Math.max(doc.body.scrollWidth, doc.body.offsetWidth);
+                setPreviewMode(w <= 500 ? 'mobile' : 'web');
+            } catch (e) { setPreviewMode('mobile'); }
+        }
+
+        function setPreviewMode(mode) {
+            previewWrapper.className = mode === 'mobile' 
+                ? 'bg-white overflow-hidden preview-frame-mobile' 
+                : 'bg-white overflow-hidden preview-frame-web';
+        }
+
+        function togglePrdSidebar() {
+            prdExpanded = !prdExpanded;
+            const sidebar = $('prdSidebar');
+            const label = $('prdCollapsedLabel');
+            const content = $('prdContent');
+            const toggle = $('prdToggle');
+            
+            if (prdExpanded) {
+                sidebar.classList.remove('collapsed'); sidebar.classList.add('expanded');
+                label.classList.add('hidden'); content.classList.remove('hidden');
+                toggle.innerHTML = '<i class="fas fa-chevron-right text-xs"></i>';
+            } else {
+                sidebar.classList.remove('expanded'); sidebar.classList.add('collapsed');
+                label.classList.remove('hidden'); label.classList.add('flex'); content.classList.add('hidden');
+                toggle.innerHTML = '<i class="fas fa-chevron-left text-xs"></i>';
+            }
+        }
+
+        function renderPageList() {
+            const list = $('pageList');
+            if (PAGES.length === 0) {
+                list.innerHTML = '<div class="p-4 text-center text-gray-400 text-sm">无页面</div>';
+                return;
+            }
+            list.innerHTML = PAGES.map(p => `
+                <div class="page-item px-4 py-3 cursor-pointer ${p.name === currentPage ? 'active' : ''}"
+                     onclick="navigateToPage('${p.name}')">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-file text-gray-400"></i>
+                        <div>
+                            <div class="font-medium text-gray-800">${p.label}</div>
+                            <div class="text-xs text-gray-400">${p.name}</div>
+                        </div>
+                        ${PRD_DATA[p.name] ? '<i class="fas fa-book text-indigo-400 ml-auto" title="有PRD"></i>' : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function navigateToPage(pageName) {
+            console.log('[Viewer] 切换到页面:', pageName);
+            $('flowchartView').classList.add('hidden');
+            $('previewContainer').classList.remove('hidden');
+            
+            // 使用 postMessage 发送导航请求 (file:// 协议下唯一可行的方式)
+            try {
+                const w = previewFrame.contentWindow;
+                w.postMessage({ type: 'navigateTo', page: pageName }, '*');
+                console.log('[Viewer] 已发送 postMessage');
+            } catch (e) {
+                console.log('[Viewer] postMessage 失败:', e);
+            }
+            
+            currentPage = pageName;
+            renderPageList();
+            showPrd(pageName);
+        }
+
+        function showPrd(pageName) {
+            $('prdPageName').textContent = pageName;
+            const content = PRD_DATA[pageName];
+            $('prdPreviewContent').innerHTML = content 
+                ? marked.parse(content) 
+                : '<p class="text-gray-400">此页面暂无 PRD 文档</p>';
+        }
+
+        async function showFlowchart() {
+            $('flowchartView').classList.remove('hidden');
+            $('previewContainer').classList.add('hidden');
+            
+            const container = $('flowchartContainer');
+            try {
+                const { svg } = await mermaid.render('flowchart-svg', MERMAID_CODE);
+                container.innerHTML = svg;
+                
+                if (MODALS.length > 0) {
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                            <h3 class="font-semibold text-gray-700 mb-3">
+                                <i class="fas fa-window-restore text-indigo-500 mr-2"></i>弹窗/交互组件
+                            </h3>
+                            <div class="grid grid-cols-2 gap-2">
+                                ${MODALS.map(m => `<div class="flex items-center gap-2 text-sm text-gray-600">
+                                    <span class="w-2 h-2 bg-indigo-400 rounded-full"></span>${m.label}
+                                </div>`).join('')}
+                            </div>
+                        </div>
+                    `);
+                }
+                
+                if (TRANSITIONS.length > 0) {
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <h3 class="font-semibold text-gray-700 mb-3">
+                                <i class="fas fa-exchange-alt text-blue-500 mr-2"></i>页面跳转 (${TRANSITIONS.length}个)
+                            </h3>
+                            <div class="space-y-1 text-sm">
+                                ${TRANSITIONS.map(t => `<div class="flex items-center gap-2 text-gray-600">
+                                    <span class="font-medium">${t.from}</span>
+                                    <i class="fas fa-arrow-right text-gray-400"></i>
+                                    <span class="font-medium">${t.to}</span>
+                                </div>`).join('')}
+                            </div>
+                        </div>
+                    `);
+                }
+            } catch (e) {
+                container.innerHTML = '<div class="text-red-500">流程图渲染失败</div><pre class="bg-gray-100 p-4 mt-4 rounded text-sm">' + MERMAID_CODE + '</pre>';
+            }
+        }
+
+        function startPageDetection() {
+            setInterval(() => {
+                try {
+                    const w = previewFrame.contentWindow;
+                    if (w && w.currentPage) {
+                        const p = w.currentPage.value || w.currentPage;
+                        if (p && typeof p === 'string' && p !== currentPage) {
+                            currentPage = p;
+                            renderPageList();
+                            showPrd(p);
+                        }
+                    }
+                } catch (e) {}
+            }, 1000);
+            
+            window.addEventListener('message', (e) => {
+                if (e.data && e.data.type === 'pageChange' && e.data.page !== currentPage) {
+                    currentPage = e.data.page;
+                    renderPageList();
+                    showPrd(e.data.page);
+                }
+            });
+        }
+    </script>
+</body>
+</html>
