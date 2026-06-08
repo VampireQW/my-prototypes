@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>扫码提交规则设置 - 演示学校</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #f5f5f5; color: #333; font-size: 14px; }
+
+  .top-header {
+    height: 48px;
+    background: #fff;
+    border-bottom: 1px solid #e8e8e8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
+  .top-header .logo {
+    font-size: 18px;
+    font-weight: 700;
+    color: #004fff;
+    letter-spacing: 4px;
+  }
+  .top-header .school-name {
+    font-size: 14px;
+    color: #333;
+    margin-left: 12px;
+    font-weight: 500;
+  }
+  .top-nav {
+    display: flex;
+    align-items: center;
+    gap: 0;
+  }
+  .top-nav a {
+    padding: 0 14px;
+    height: 48px;
+    line-height: 48px;
+    color: #333;
+    text-decoration: none;
+    font-size: 14px;
+    white-space: nowrap;
+    position: relative;
+  }
+  .top-nav a:hover { color: #004fff; }
+  .top-nav a.active {
+    color: #004fff;
+  }
+  .top-nav a.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: #004fff;
+  }
+  .user-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #666;
+  }
+  .user-info img {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e0e0e0;
+  }
+
+  /* View Toggle */
+  .view-toggle {
+    display: flex;
+    align-items: center;
+    border: 1px solid #004fff;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-right: 16px;
+  }
+  .view-toggle button {
+    border: none;
+    background: #fff;
+    color: #004fff;
+    padding: 5px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .view-toggle button.active {
+    background: #004fff;
+    color: #fff;
+  }
+
+  .sidebar {
+    width: 120px;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    bottom: 0;
+    background: #fff;
+    border-right: 1px solid #e8e8e8;
+    padding-top: 12px;
+    overflow-y: auto;
+    z-index: 50;
+  }
+  .sidebar-section {
+    margin-bottom: 8px;
+  }
+  .sidebar-section-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    padding: 8px 16px;
+  }
+  .sidebar-item {
+    padding: 8px 16px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    line-height: 1.6;
+  }
+  .sidebar-item:hover { color: #004fff; background: #f0f5ff; }
+  .sidebar-item.active { color: #004fff; background: #e6f0ff; font-weight: 500; }
+  .sidebar-divider {
+    height: 1px;
+    background: #e8e8e8;
+    margin: 8px 16px;
+  }
+
+  .main-content {
+    margin-left: 120px;
+    margin-top: 48px;
+    padding: 0;
+    min-height: calc(100vh - 48px);
+    background: #fff;
+  }
+  .main-content.full {
+    margin-left: 0;
+  }
+
+  .sub-tabs {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    padding: 0 24px;
+    border-bottom: 1px solid #e8e8e8;
+    background: #fff;
+  }
+  .sub-tab {
+    padding: 12px 16px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+  }
+  .sub-tab:hover { color: #004fff; }
+  .sub-tab.active {
+    color: #004fff;
+    font-weight: 500;
+  }
+  .sub-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 16px;
+    right: 16px;
+    height: 2px;
+    background: #004fff;
+  }
+
+  .content-area {
+    padding: 20px 24px;
+  }
+
+  .grade-row, .subject-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    gap: 4px;
+  }
+  .grade-label, .subject-label {
+    font-size: 14px;
+    color: #666;
+    margin-right: 8px;
+    white-space: nowrap;
+  }
+  .grade-tag, .subject-tag {
+    padding: 2px 12px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .grade-tag:hover, .subject-tag:hover { color: #004fff; }
+  .grade-tag.active {
+    color: #004fff;
+  }
+  .subject-tag.active {
+    color: #004fff;
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #333;
+    margin-top: 20px;
+    margin-bottom: 6px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: #999;
+    margin-bottom: 10px;
+  }
+
+  .modify-btn {
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    color: #333;
+    padding: 4px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    margin-bottom: 16px;
+    display: inline-block;
+  }
+  .modify-btn:hover { border-color: #004fff; color: #004fff; }
+
+  .time-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .time-table th, .time-table td {
+    padding: 10px 0;
+    text-align: left;
+    vertical-align: middle;
+  }
+  .time-table th {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+  }
+  .time-table td:first-child {
+    width: 80px;
+    font-size: 13px;
+    color: #333;
+  }
+  .time-slots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .time-slot {
+    width: 48px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #666;
+    cursor: pointer;
+    background: #fff;
+    user-select: none;
+  }
+  .time-slot.selected {
+    border-color: #004fff;
+    color: #004fff;
+    background: #f0f5ff;
+  }
+  .time-slot:hover { border-color: #004fff; }
+
+  .answer-rule {
+    margin-top: 24px;
+  }
+  .answer-rule .section-title {
+    margin-bottom: 12px;
+  }
+  .radio-group {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .radio-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+  }
+  .radio-item input[type="radio"] {
+    accent-color: #004fff;
+    width: 15px;
+    height: 15px;
+  }
+  .radio-item .input-inline {
+    width: 60px;
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 13px;
+    padding: 0 8px;
+    margin: 0 4px;
+  }
+  .radio-item .input-inline:focus {
+    outline: none;
+    border-color: #004fff;
+    box-shadow: 0 0 0 2px rgba(0,79,255,0.1);
+  }
+
+  /* 重复规则设置 */
+  .rule-radio-group {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-bottom: 16px;
+  }
+  .rule-radio-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    color: #333;
+  }
+  .rule-radio-item input[type="radio"] {
+    accent-color: #004fff;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+  }
+  .rule-desc {
+    font-size: 13px;
+    color: #666;
+    line-height: 1.8;
+    padding: 12px 16px;
+    background: #fafafa;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+  }
+  .rule-desc .highlight {
+    color: #004fff;
+    font-weight: 600;
+  }
+  .day-input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .day-input {
+    width: 72px;
+    height: 32px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 14px;
+    padding: 0 8px;
+    color: #333;
+  }
+  .day-input:focus {
+    outline: none;
+    border-color: #004fff;
+    box-shadow: 0 0 0 2px rgba(0,79,255,0.1);
+  }
+  .day-input-label {
+    font-size: 14px;
+    color: #333;
+  }
+
+  .help-float {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #004fff;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,79,255,0.3);
+    z-index: 200;
+  }
+
+  .save-bar {
+    padding: 16px 0;
+    margin-top: 24px;
+    display: flex;
+    gap: 12px;
+  }
+  .btn-primary {
+    background: #004fff;
+    color: #fff;
+    border: none;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-primary:hover { background: #003bcc; }
+  .btn-default {
+    background: #fff;
+    color: #333;
+    border: 1px solid #d9d9d9;
+    padding: 6px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .btn-default:hover { border-color: #004fff; color: #004fff; }
+
+  /* ===== Teacher View ===== */
+  .filter-bar {
+    padding: 10px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .filter-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-row:last-child { margin-bottom: 0; }
+  .filter-label {
+    font-size: 13px;
+    color: #666;
+    white-space: nowrap;
+  }
+  .filter-select {
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    padding: 0 24px 0 8px;
+    background: #fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M0 0l5 6 5-6z' fill='%23999'/></svg>") no-repeat right 8px center;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+    min-width: 130px;
+  }
+  .class-tag {
+    padding: 3px 10px;
+    font-size: 13px;
+    color: #666;
+    cursor: pointer;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+  .class-tag:hover { color: #004fff; }
+  .class-tag.active {
+    color: #004fff;
+    background: #e6f0ff;
+  }
+  .date-range {
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    color: #333;
+    padding: 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #fff;
+  }
+  .search-box {
+    height: 28px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    font-size: 13px;
+    padding: 0 30px 0 10px;
+    width: 230px;
+    background: #fff;
+    position: relative;
+  }
+  .search-wrap { position: relative; }
+  .search-wrap i {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-size: 12px;
+  }
+
+  .work-tabs {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid #e8e8e8;
+    position: relative;
+  }
+  .work-tab {
+    padding: 10px 14px;
+    font-size: 14px;
+    color: #666;
+    cursor: pointer;
+    position: relative;
+  }
+  .work-tab:hover { color: #004fff; }
+  .work-tab.active { color: #004fff; font-weight: 500; }
+  .work-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 14px;
+    right: 14px;
+    height: 2px;
+    background: #004fff;
+  }
+  .work-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .make-card-btn {
+    background: #004fff;
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+  }
+  .make-card-btn:hover { background: #003bcc; }
+  .setting-icon-btn {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+    background: #fff;
+    color: #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 15px;
+  }
+  .setting-icon-btn:hover { border-color: #004fff; color: #004fff; }
+
+  .work-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .work-table th {
+    font-size: 13px;
+    color: #666;
+    font-weight: 500;
+    text-align: left;
+    padding: 10px 12px;
+    background: #fafafa;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .work-table td {
+    font-size: 13px;
+    color: #333;
+    padding: 12px;
+    border-bottom: 1px solid #f5f5f5;
+    vertical-align: middle;
+  }
+  .work-table tr:hover td { background: #fafcff; }
+  .name-tag {
+    display: inline-block;
+    font-size: 11px;
+    padding: 0 5px;
+    border-radius: 3px;
+    margin-left: 6px;
+    line-height: 18px;
+    vertical-align: middle;
+  }
+  .tag-blue { color: #004fff; background: #e6f0ff; }
+  .tag-orange { color: #fa8c16; background: #fff3e6; }
+  .num-red { color: #f5222d; }
+  .status-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #bbb;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .op-link {
+    color: #004fff;
+    cursor: pointer;
+    margin-right: 10px;
+    font-size: 13px;
+  }
+  .op-link:hover { text-decoration: underline; }
+  .time-cell { color: #666; }
+  .end-text { color: #999; margin-right: 6px; }
+
+  /* Modal */
+  .modal-mask {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+  }
+  .modal {
+    width: 560px;
+    max-width: 92vw;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .modal-close {
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .modal-close:hover { color: #666; }
+  .modal-body {
+    padding: 24px 20px;
+  }
+  .modal-footer {
+    padding: 12px 20px;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main-content { margin-left: 0; }
+    .top-nav { display: none; }
+    .time-slots { gap: 2px; }
+    .time-slot { width: 40px; height: 24px; font-size: 10px; }
+    .content-area { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <!-- Top Header -->
+  <div class="top-header">
+    <div style="display:flex;align-items:center;">
+      <span class="logo">演示学校</span>
+      <span class="school-name">进步中学</span>
+    </div>
+    <div class="top-nav">
+      <a href="#" :class="{ active: viewRole === 'admin' }">数据中心</a>
+      <a href="#">学情分析</a>
+      <a href="#">教务管理</a>
+      <a href="#">考试</a>
+      <a href="#">校级管理</a>
+      <a href="#">数据大屏</a>
+      <a href="#" :class="{ active: viewRole === 'teacher' }">作业</a>
+      <a href="#">错题本</a>
+      <a href="#">试卷库</a>
+      <a href="#" style="font-size:16px;"><i class="fas fa-th"></i></a>
+    </div>
+    <div style="display:flex;align-items:center;">
+      <div class="view-toggle">
+        <button :class="{ active: viewRole === 'admin' }" @click="viewRole = 'admin'">管理员</button>
+        <button :class="{ active: viewRole === 'teacher' }" @click="viewRole = 'teacher'">教师</button>
+      </div>
+      <div class="user-info">
+        <div style="width:28px;height:28px;border-radius:50%;background:#e0e0e0;display:flex;align-items:center;justify-content:center;"><i class="fas fa-user" style="font-size:12px;color:#999;"></i></div>
+        <span>jbgz001 <i class="fas fa-chevron-down" style="font-size:10px;margin-left:2px;"></i></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 管理员视角 ============ -->
+  <template v-if="viewRole === 'admin'">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">扫描管理</div>
+        <a class="sidebar-item active">扫描管理</a>
+        <a class="sidebar-item">学科扫描量统计</a>
+        <a class="sidebar-item">作业批改报表</a>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-section-title">在线作业统计</div>
+        <a class="sidebar-item">布置记录</a>
+        <a class="sidebar-item">提交明细</a>
+        <a class="sidebar-item">数据汇总</a>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Sub Tabs -->
+      <div class="sub-tabs">
+        <div class="sub-tab">扫描题卡管理</div>
+        <div class="sub-tab">学生扫码提交题卡管理</div>
+        <div class="sub-tab" :class="{ active: activeMainTab === 'scanRule' }" @click="activeMainTab = 'scanRule'">扫码提交规则设置</div>
+        <div class="sub-tab" :class="{ active: activeMainTab === 'duplicateRule' }" @click="activeMainTab = 'duplicateRule'">通用题卡重复规则设置</div>
+      </div>
+
+      <!-- 扫码提交规则设置 content -->
+      <div class="content-area" v-show="activeMainTab === 'scanRule'">
+        <div class="grade-row">
+          <span class="grade-label">年级：</span>
+          <span class="grade-tag" :class="{ active: activeGrade === '高一' }" @click="activeGrade = '高一'">高一</span>
+          <span class="grade-tag" :class="{ active: activeGrade === '高二' }" @click="activeGrade = '高二'">高二</span>
+        </div>
+
+        <div class="subject-row">
+          <span class="subject-label">学科：</span>
+          <span class="subject-tag" v-for="s in subjects" :key="s" :class="{ active: activeSubject === s }" @click="activeSubject = s">{{ s }}</span>
+        </div>
+
+        <div class="section-title">提交时间设置</div>
+        <div class="section-desc">学生仅可在已设置的时间内扫码提交作业</div>
+        <button class="modify-btn">修 改</button>
+
+        <table class="time-table">
+          <thead>
+            <tr>
+              <th>星期</th>
+              <th>可扫码提交时间</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(day, idx) in weekdays" :key="day">
+              <td>{{ day }}</td>
+              <td>
+                <div class="time-slots">
+                  <div class="time-slot" v-for="h in hours" :key="h" :class="{ selected: isTimeSelected(idx, h) }" @click="toggleTime(idx, h)">{{ h }}:00</div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="answer-rule">
+          <div class="section-title">答案公布规则</div>
+          <div class="radio-group">
+            <label class="radio-item">
+              <input type="radio" name="answer" value="immediate" v-model="answerRule">
+              <span>提交后立即可查看答案</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="answer" value="delay" v-model="answerRule">
+              <span>提交</span>
+              <input type="text" class="input-inline" v-model="answerDelayHours" :disabled="answerRule !== 'delay'">
+              <span>小时后可查看答案</span>
+            </label>
+            <label class="radio-item">
+              <input type="radio" name="answer" value="percent" v-model="answerRule">
+              <span>班级提交率 ≥</span>
+              <input type="text" class="input-inline" v-model="answerPercent" :disabled="answerRule !== 'percent'">
+              <span>%可查看答案</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 通用题卡重复规则设置 content -->
+      <div class="content-area" v-show="activeMainTab === 'duplicateRule'">
+        <!-- 设置方式 -->
+        <div class="section-title" style="margin-top: 4px; margin-bottom: 16px;">设置方式</div>
+        <div class="rule-radio-group">
+          <label class="rule-radio-item">
+            <input type="radio" name="settingMode" value="unified" v-model="settingMode">
+            <span>统一设置</span>
+          </label>
+          <label class="rule-radio-item">
+            <input type="radio" name="settingMode" value="teacher" v-model="settingMode">
+            <span>老师自行设置</span>
+          </label>
+        </div>
+
+        <!-- 统一设置 -->
+        <div v-if="settingMode === 'unified'">
+          <div class="section-title" style="margin-top: 24px; margin-bottom: 16px;">规则设置</div>
+
+          <div class="rule-radio-group">
+            <label class="rule-radio-item">
+              <input type="radio" name="dupRule" value="default" v-model="dupRule">
+              <span>默认</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="dupRule" value="custom" v-model="dupRule">
+              <span>自定义时长</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="dupRule" value="disabled" v-model="dupRule">
+              <span>不生效</span>
+            </label>
+          </div>
+
+          <div v-if="dupRule === 'default'" class="rule-desc">
+            扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> 7 天</span>，则会提醒老师需要手动选择题卡归属的作业。
+          </div>
+
+          <div v-if="dupRule === 'custom'">
+            <div class="day-input-wrapper">
+              <span class="day-input-label">自定义天数：</span>
+              <input type="number" class="day-input" v-model.number="customDays" :min="1" :max="180" @blur="clampDays">
+              <span class="day-input-label">天</span>
+            </div>
+            <div class="rule-desc">
+              扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> {{ customDays }} 天</span>，则会提醒老师需要手动选择题卡归属的作业。
+            </div>
+          </div>
+
+          <div v-if="dupRule === 'disabled'" class="rule-desc">
+            不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。
+          </div>
+        </div>
+
+        <!-- 老师自行设置 -->
+        <div v-if="settingMode === 'teacher'">
+          <div class="rule-desc" style="margin-top: 24px;">
+            由老师自主设置重复规则，默认，自定义时间，不生效。
+          </div>
+        </div>
+
+        <div class="save-bar">
+          <button class="btn-primary">保 存</button>
+          <button class="btn-default">取 消</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- ============ 教师视角 ============ -->
+  <template v-if="viewRole === 'teacher'">
+    <div class="main-content full">
+      <!-- Filter Bar -->
+      <div class="filter-bar">
+        <div class="filter-row">
+          <span class="filter-label">年级选择：</span>
+          <select class="filter-select">
+            <option>2024-2025学年 ...</option>
+            <option>2025-2026学年</option>
+          </select>
+          <span class="grade-tag active">高一</span>
+          <span class="grade-tag">高二</span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">任教班级：</span>
+          <span class="class-tag" v-for="c in classes" :key="c" :class="{ active: activeClass === c }" @click="activeClass = c">{{ c }}</span>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">高级选项：</span>
+          <select class="filter-select"><option>全部学科</option></select>
+          <select class="filter-select"><option>全部模块</option></select>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:12px;">
+            <div class="date-range">
+              <i class="far fa-calendar" style="color:#999;"></i>
+              <span>2025-12-08</span>
+              <span style="color:#ccc;">~</span>
+              <span>2026-06-08</span>
+            </div>
+            <div class="search-wrap">
+              <input class="search-box" placeholder="请输入作业名称或编号">
+              <i class="fas fa-search"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Tabs -->
+      <div class="work-tabs">
+        <div class="work-tab" v-for="t in workTabs" :key="t" :class="{ active: activeWorkTab === t }" @click="activeWorkTab = t">{{ t }}</div>
+        <div class="work-actions">
+          <button class="make-card-btn">制作作业答题卡</button>
+          <div class="setting-icon-btn" title="通用题卡序号重复规则设置" @click="showRuleModal = true">
+            <i class="fas fa-cog"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Work Table -->
+      <div style="padding: 0 16px;">
+        <table class="work-table">
+          <thead>
+            <tr>
+              <th style="width:70px;">科目</th>
+              <th>名称</th>
+              <th style="width:150px;">班级</th>
+              <th style="width:80px;">已交</th>
+              <th style="width:80px;">未交</th>
+              <th style="width:200px;">时间</th>
+              <th style="width:200px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(row, i) in workRows" :key="i">
+              <td>{{ row.subject }}</td>
+              <td>
+                {{ row.name }}
+                <span v-if="row.tag" class="name-tag" :class="row.tagClass">{{ row.tag }}</span>
+              </td>
+              <td>{{ row.class }}</td>
+              <td>{{ row.submitted }}</td>
+              <td><span class="num-red">{{ row.unsubmitted }}</span></td>
+              <td class="time-cell">
+                <span v-if="row.ended" class="end-text"><span class="status-dot"></span>已结束</span>{{ row.time }}
+              </td>
+              <td>
+                <span class="op-link" v-for="op in row.ops" :key="op">{{ op }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 通用题卡序号重复规则设置 Modal -->
+    <div class="modal-mask" v-if="showRuleModal" @click.self="showRuleModal = false">
+      <div class="modal">
+        <div class="modal-header">
+          <span class="modal-title">通用题卡序号重复规则设置</span>
+          <span class="modal-close" @click="showRuleModal = false"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="modal-body">
+          <div class="rule-radio-group">
+            <label class="rule-radio-item">
+              <input type="radio" name="tDupRule" value="default" v-model="teacherDupRule">
+              <span>默认</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="tDupRule" value="custom" v-model="teacherDupRule">
+              <span>自定义时间</span>
+            </label>
+            <label class="rule-radio-item">
+              <input type="radio" name="tDupRule" value="disabled" v-model="teacherDupRule">
+              <span>不生效</span>
+            </label>
+          </div>
+
+          <div v-if="teacherDupRule === 'default'" class="rule-desc">
+            扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> 7 天</span>，则进行提醒，需手动设置归属的作业。
+          </div>
+
+          <div v-if="teacherDupRule === 'custom'">
+            <div class="day-input-wrapper">
+              <span class="day-input-label">自定义天数：</span>
+              <input type="number" class="day-input" v-model.number="teacherCustomDays" :min="1" :max="180" @blur="clampTeacherDays">
+              <span class="day-input-label">天</span>
+            </div>
+            <div class="rule-desc">
+              扫描题卡的序号之前已被使用过，且时间间隔超过<span class="highlight"> {{ teacherCustomDays }} 天</span>，则进行提醒，需手动设置归属的作业。
+            </div>
+          </div>
+
+          <div v-if="teacherDupRule === 'disabled'" class="rule-desc">
+            不再进行序号重复性验证，若序号重复则扫描题卡自动归属到最近一份相同序号的作业中。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-default" @click="showRuleModal = false">取 消</button>
+          <button class="btn-primary" @click="showRuleModal = false">保 存</button>
+        </div>
+      </div>
+    </div>
+  </template>
+
+  <!-- Help Float -->
+  <div class="help-float">?</div>
+</div>
+
+<script>
+const { createApp, ref, reactive } = Vue;
+
+createApp({
+  setup() {
+    // 视角切换
+    const viewRole = ref('teacher');
+
+    // ===== 管理员视角 =====
+    const activeMainTab = ref('duplicateRule');
+    const activeGrade = ref('高一');
+    const activeSubject = ref('语文');
+    const subjects = ref(['语文', '数学', '英语', '物理', '化学', '生物', '政治', '历史', '地理', '通用技术', '信息技术', '体育']);
+
+    const weekdays = ref(['星期一', '星期二', '星期三', '星期四', '星期五', '星期六', '星期日']);
+    const hours = ref(Array.from({ length: 24 }, (_, i) => i));
+
+    const selectedTimes = reactive({});
+    weekdays.value.forEach((_, idx) => {
+      selectedTimes[idx] = new Set(Array.from({ length: 24 }, (_, i) => i));
+    });
+    selectedTimes[2].delete(7);
+    selectedTimes[4].delete(15);
+    selectedTimes[4].delete(16);
+
+    const isTimeSelected = (dayIdx, hour) => selectedTimes[dayIdx] && selectedTimes[dayIdx].has(hour);
+    const toggleTime = (dayIdx, hour) => {
+      if (!selectedTimes[dayIdx]) selectedTimes[dayIdx] = new Set();
+      if (selectedTimes[dayIdx].has(hour)) selectedTimes[dayIdx].delete(hour);
+      else selectedTimes[dayIdx].add(hour);
+    };
+
+    const answerRule = ref('immediate');
+    const answerDelayHours = ref('');
+    const answerPercent = ref('');
+
+    const settingMode = ref('unified');
+    const dupRule = ref('default');
+    const customDays = ref(7);
+    const clampDays = () => {
+      if (customDays.value < 1) customDays.value = 1;
+      if (customDays.value > 180) customDays.value = 180;
+      if (!customDays.value || isNaN(customDays.value)) customDays.value = 7;
+    };
+
+    // ===== 教师视角 =====
+    const classes = ref(['全部班级', '发发', '日语班', '这个合并', '金钰人生', '一班-勿动删删', '2班', '6班-改', '李腾灯预校', '韩语', '德语班级', '物理班', '韩语班级', '哪个报你告诉', '阿拉伯语班级', '法语班级', '5班', '66班', '韩语123']);
+    const activeClass = ref('全部班级');
+    const workTabs = ref(['全部', '图书作业', '校本作业', '校本学案', '自典题卡', '在线作业', '通用题卡']);
+    const activeWorkTab = ref('全部');
+
+    const workRows = ref([
+      { subject: '数学', name: '手动编', tag: '4题', tagClass: 'tag-blue', class: '一班-勿动删删', submitted: '1 | 1', unsubmitted: '13 | 13', time: '2026-06-08 11:22', ended: false, ops: ['批阅', '查看详情', '电子作业本'] },
+      { subject: '数学', name: '手动阿萨法', tag: '', tagClass: '', class: '一班-勿动删删', submitted: '1', unsubmitted: '13', time: '2026-06-08 16:27', ended: false, ops: ['回阅', '查看详情', '电子作业本'] },
+      { subject: '物理', name: '2026年06月05日物理作业_副本', tag: '', tagClass: '', class: '一班-勿动删删', submitted: '1', unsubmitted: '12', time: '2026-06-08 16:24', ended: false, ops: ['回阅', '查看详情', '电子作业本'] },
+      { subject: '物理', name: '2026年06月05日物理作业_副本', tag: '', tagClass: '', class: '物理班', submitted: '1', unsubmitted: '1', time: '2026-06-08 16:23', ended: false, ops: ['回阅', '查看详情', '电子作业本'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '66班', submitted: '0', unsubmitted: '1', time: '2026-06-05 23:59', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '5班', submitted: '0', unsubmitted: '1', time: '2026-06-05 23:59', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '2班', submitted: '0', unsubmitted: '63', time: '2026-06-06 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '一班-勿动删删', submitted: '0', unsubmitted: '14', time: '2026-06-06 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月28日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '日语班', submitted: '0', unsubmitted: '4', time: '2026-06-06 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月27日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '6班-改', submitted: '0', unsubmitted: '59', time: '2026-06-08 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月27日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '66班', submitted: '0', unsubmitted: '63', time: '2026-06-08 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+      { subject: '语文', name: '2026年05月27日语文作业', tag: '线上作业', tagClass: 'tag-orange', class: '一班-勿动删删', submitted: '0', unsubmitted: '14', time: '2026-06-08 00:00', ended: true, ops: ['批阅', '查看详情', '更多'] },
+    ]);
+
+    const showRuleModal = ref(false);
+    const teacherDupRule = ref('default');
+    const teacherCustomDays = ref(7);
+    const clampTeacherDays = () => {
+      if (teacherCustomDays.value < 1) teacherCustomDays.value = 1;
+      if (teacherCustomDays.value > 180) teacherCustomDays.value = 180;
+      if (!teacherCustomDays.value || isNaN(teacherCustomDays.value)) teacherCustomDays.value = 7;
+    };
+
+    return {
+      viewRole,
+      activeMainTab, activeGrade, activeSubject, subjects,
+      weekdays, hours, isTimeSelected, toggleTime,
+      answerRule, answerDelayHours, answerPercent,
+      settingMode, dupRule, customDays, clampDays,
+      classes, activeClass, workTabs, activeWorkTab, workRows,
+      showRuleModal, teacherDupRule, teacherCustomDays, clampTeacherDays,
+    };
+  }
+}).mount('#app');
+</script>
+
+
+<!-- 页面导航监听器 (导出时注入) -->
+<script>
+(function() {
+    var checkInterval = setInterval(function() {
+        if (window.currentPage) {
+            clearInterval(checkInterval);
+            console.log('[原型] currentPage 已就绪');
+        }
+    }, 100);
+    
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'navigateTo') {
+            var pageName = event.data.page;
+            console.log('[原型] 收到页面切换请求:', pageName);
+            if (window.currentPage && window.currentPage.value !== undefined) {
+                window.currentPage.value = pageName;
+                console.log('[原型] 已切换到页面:', pageName);
+            }
+            if (window.parent !== window) {
+                window.parent.postMessage({ type: 'pageChange', page: pageName }, '*');
+            }
+        }
+    });
+    
+    if (window.parent !== window) {
+        setInterval(function() {
+            if (window.currentPage && window.currentPage.value) {
+                window.parent.postMessage({ type: 'pageChange', page: window.currentPage.value }, '*');
+            }
+        }, 500);
+    }
+})();
+</script>
+
+</body>
+</html>
